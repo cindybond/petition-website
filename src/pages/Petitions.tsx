@@ -1,9 +1,8 @@
 import axios from 'axios';
 import React from "react";
 import {
-    Box,
-    Button, Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput,
-    Paper, Select, Slider,
+    Button, Card, CardActionArea, CardContent, CardMedia, Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput,
+    Paper, Select,
     Table,
     TableBody,
     TableCell,
@@ -16,9 +15,15 @@ import CSS from 'csstype';
 
 import {Category} from "@mui/icons-material";
 import {Menubar} from "primereact/menubar";
+import Typography from "@mui/material/Typography";
+import Home from "./Home";
+import SearchNavbar from "../components/SearchNavbar";
+import Toolbar from "@mui/material/Toolbar";
+import Link from "@mui/material/Link";
+import Avatar from "@mui/material/Avatar";
 const card: CSS.Properties = {
     padding: "10px",
-    margin: "20px"
+    margin: "20px",
 }
 interface HeadCell {
     id: string;
@@ -42,19 +47,23 @@ const Petitions = () => {
     const [errorMessage, setErrorMessage] = React.useState("")
     const [categories, setCategories] = React.useState < Array < Categories >>([])
     const [searchKey, setSearchKey] = React.useState("")
-    const [filteredPetition, setFilteredPetition] = React.useState< Array < Petition >>([])
+    const [costSearchKey, setCostSearchKey] = React.useState("")
+    const [viewPetition, setViewPetition] = React.useState< Array < Petition >>([])
     const [filterCategory, setFilterCategory] = React.useState<number[]>([])
-    const [filterCost, setFilterCost] = React.useState<number[]>([])
+    const url = 'http://localhost:4941/api/v1/petitions'
+
+
     React.useEffect(() => {
         getPetition()
         getCategories()
     }, [])
     const getPetition = () => {
-        axios.get('http://localhost:4941/api/v1/petitions')
+        axios.get(url)
             .then((response) => {
                 setErrorFlag(false)
                 setErrorMessage("")
                 setPetition(response.data.petitions)
+                setViewPetition(response.data.petitions)
             }, (error) => {
                 setErrorFlag(true)
                 setErrorMessage(error.toString())
@@ -62,7 +71,7 @@ const Petitions = () => {
     }
 
     const getCategories = () => {
-        axios.get('http://localhost:4941/api/v1/petitions/categories')
+        axios.get(url + '/categories')
             .then((response) => {
 
                 setErrorFlag(false)
@@ -79,44 +88,127 @@ const Petitions = () => {
         return category ? category.name : '';
     }
 
-
     const filterPetition = () => {
-        console.log("What's here",categories)
-        const filtered = petition.filter(petition =>
-            petition.title.toLowerCase().includes(searchKey.toLowerCase())
-            && filterCategory.includes(petition.categoryId));
-        setFilteredPetition(filtered);
+        console.log('Whats here', filterCategory)
+        let query = ''
+        if (searchKey !== "" && filterCategory.length === 0 && costSearchKey.length === 0) {
+            query += '?q=' + searchKey
+        }
+        if (searchKey === "" && filterCategory.length === 0 && costSearchKey.length !== 0) {
+            query += '?supportingCost=' + costSearchKey
+        }
+        if (searchKey !== "" && filterCategory.length === 0 && costSearchKey.length !== 0) {
+            query += '?q=' + searchKey + '&supportingCost=' + costSearchKey
+        }
+        if (searchKey === "" && filterCategory.length !== 0 && costSearchKey.length === 0){
+            if (filterCategory.length === 1) {
+                query += '?categoryIds=' + filterCategory
+            } else if (filterCategory.length > 1) {
+                query += '?categoryIds=' + filterCategory[0]
+                filterCategory.slice(1).forEach(category => {
+                    query += '&categoryIds=' + category
+                })
+
+            }
+        }
+        if (searchKey !== "" && filterCategory.length !== 0 && costSearchKey.length === 0) {
+            console.log('check')
+            if (filterCategory.length === 1) {
+                query += '?q=' + searchKey + '&categoryIds=' + filterCategory
+            } else if (filterCategory.length > 1) {
+                query += '?q=' + searchKey + '&categoryIds=' + filterCategory[0]
+                filterCategory.slice(1).forEach(category => {
+                    query += '&categoryIds=' + category
+                })
+
+            }
+        }
+        if (searchKey !== "" && filterCategory.length !== 0 && costSearchKey.length !== 0) {
+            console.log('check')
+            if (filterCategory.length === 1) {
+                query += '?q=' + searchKey + '&supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory
+            } else if (filterCategory.length > 1) {
+                query += '?q=' + searchKey + '&supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory[0]
+                filterCategory.slice(1).forEach(category => {
+                    query += '&categoryIds=' + category
+                })
+
+            }
+        }
+        if (searchKey === "" && filterCategory.length !== 0 && costSearchKey.length !== 0){
+            if (filterCategory.length === 1) {
+                query += '?supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory
+            } else if (filterCategory.length > 1) {
+                query += '?supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory[0]
+                filterCategory.slice(1).forEach(category => {
+                    query += '&categoryIds=' + category
+                })
+
+            }
+        }
+
+        axios.get(url + query)
+            .then((response) => {
+                setErrorFlag(false)
+                setErrorMessage("")
+                setViewPetition(response.data.petitions)
+            }, (error) => {
+                setErrorFlag(true)
+                setErrorMessage(error.toString())
+            })
+    }
+
+    const showFilteredPetition = () => {
+        return (
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+                {viewPetition.map((row: Petition) => (
+                    <Paper elevation={3} style={card} key={row.petitionId}>
+                        <CardActionArea component="a" href="#">
+                            <Card sx={{ maxWidth:500 }}>
+                                <CardMedia
+                                    component="img"
+                                    sx={{ width: 500, maxHeight:200, display: { xs: 'none', sm: 'block' } }}
+                                    image={`http://localhost:4941/api/v1/petitions/${row.petitionId}/image`}
+                                    alt="Petition Image"
+                                />
+                                <CardContent sx={{ flex: 1 }}>
+                                    <Typography component="h2" align='left' variant="h5" color='primary'>
+                                        {row.title}
+                                    </Typography>
+                                    <Typography variant="subtitle2" align='left' sx={{fontSize:'16px' ,marginBottom:'20px'}}>
+                                        Category: {getCategoryName(row.categoryId)}
+                                    </Typography>
+                                    <Typography variant="overline" noWrap={false} align='left' color="#e65100" sx={{fontSize:'18px'}}>
+                                        Supporting Cost: ${row.supportingCost}
+                                    </Typography>
+                                    <Typography variant="subtitle1" align='left' sx={{fontSize:'12px', justifyContent: 'flex-end', marginTop:'20px'}}>
+                                        Created By:
+                                    </Typography>
+                                    <div style={{display: 'flex', alignItems: 'center'}}>
+                                        <Avatar src={`http://localhost:4941/api/v1/users/${row.ownerId}/image`}
+                                                alt="User Image" sx={{marginTop:'10px'}}/>
+                                        <Typography variant="caption" align='left' sx={{marginLeft: '5px', marginTop:'10px'}}>
+                                            {row.ownerFirstName} {row.ownerLastName} on {row.creationDate}
+                                        </Typography>
+                                    </div>
+
+
+                                </CardContent>
+
+                            </Card>
+                        </CardActionArea>
+                    </Paper>
+                ))}
+            </div>
+        );
     }
 
 
-    const petition_rows = () => {
-        return filteredPetition.map((row: Petition) =>
-            <TableRow hover
-                      tabIndex={-1}
-                      key={row.petitionId}>
-                <TableCell>{row.petitionId}</TableCell>
-                <TableCell>
-                    <img src={'http://localhost:4941/api/v1/petitions/' + row.petitionId + '/image'}
-                         alt='Petition Image' width='100px'></img>
-                </TableCell>
-                <TableCell align="left">{row.title}</TableCell>
-                <TableCell>{row.creationDate}</TableCell>
-                <TableCell>{row.ownerFirstName} {row.ownerLastName}
-                    <img src={'http://localhost:4941/api/v1/users/' + row.ownerId + '/image'}
-                    alt="User Image" width="100px" ></img>
-                </TableCell>
-                <TableCell>{row.supportingCost}</TableCell>
-                <TableCell>{getCategoryName(row.categoryId)}</TableCell>
-
-            </TableRow>
-        )
-    }
-
-    if(errorFlag) {
+    if (errorFlag) {
         return (
             <div>
                 <h1>Users</h1>
-                <div style={{ color: "red" }}>
+                <div style={{color: "red"}}>
                     {errorMessage}
                 </div>
             </div>
@@ -124,59 +216,32 @@ const Petitions = () => {
     } else {
         return (
             <div>
-                <div style={{marginTop:"20px"}}>
-                    <FormControl sx={{ m: 1, width: 300 }}>
-                        <TextField id="outlined-basic" label="Search for petition" variant="outlined" size="small"
-                                   value={searchKey} onChange={ e => {
-                            setSearchKey(e.target.value)}}></TextField>
-                    </FormControl>
-                    <FormControl sx={{ m: 1, width: 300 }}>
-                        <InputLabel>Category</InputLabel>
-                        <Select
-                            multiple
-                            value={filterCategory}
-                            onChange={(e:any) => setFilterCategory(e.target.value)}
-                        >
-                            {categories.map((row) => (
-                                <MenuItem key={row.categoryId} value={row.categoryId}>
-                                    {row.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <Box sx={{ m:1, width: 300 }}>
-                        <Slider
-                            value={filterCost}
-                            onChange={(e:any) => setFilterCost(e.target.value)}
-                            valueLabelDisplay="auto"
-                        />
-                    </Box>
-                    <Button onClick={filterPetition}>Search</Button>
+                <div>
+                    <React.Fragment>
+                        <Toolbar sx={{ display:'flex', borderBottom: 1, borderColor: 'divider'}}>
+                            <Link href="#" underline="none" color="inherit" sx={{flex:1}}>
+                                <Typography variant="h4" align="left">PETITION SITE</Typography>
+                            </Link>
 
+                            <Button variant="outlined" href="http://localhost:8080/register" sx={{margin:'10px'}}>
+                                Register
+                            </Button>
+                            <Button variant="outlined" href="http://localhost:8080/login">
+                                Sign In
+                            </Button>
+                        </Toolbar>
+                    </React.Fragment>
                 </div>
-                <Paper elevation={3} style={card}>
-                    <h1>Petitions</h1>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    {headCells.map((headCell) => (
-                                        <TableCell
-                                            key={headCell.id}
-                                            align={'left'}
-                                            padding={'normal'}>
-                                            {headCell.label}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {petition_rows()}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Paper>
+                <div>
+                    <SearchNavbar searchKey={searchKey} setSearchKey={setSearchKey} filterCategory={filterCategory}
+                                  setFilterCategory={setFilterCategory} categories={categories} filteredPetition={filterPetition}
+                                    costSearchKey={costSearchKey} setCostSearchKey={setCostSearchKey}/>
+                </div>
+                <div>
+                    {showFilteredPetition()}
+                </div>
             </div>
+
         )
     }
 }
