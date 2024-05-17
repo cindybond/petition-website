@@ -1,4 +1,4 @@
-import {Button, Checkbox, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
+import {Button, Checkbox, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField} from "@mui/material";
 import React from "react";
 
 
@@ -11,15 +11,19 @@ interface SearchNavbarProps {
     filteredPetition:()=>void
     costSearchKey: string,
     setCostSearchKey:React.Dispatch<React.SetStateAction<string>>
+    sortBy:string,
+    setSortBy:React.Dispatch<React.SetStateAction<string>>
+    handleSort:(e:SelectChangeEvent)=>void
 }
 const SearchNavbar = (props:SearchNavbarProps) => {
     const{ searchKey,filterCategory,categories,
         setSearchKey,setFilterCategory,
-        filteredPetition, costSearchKey, setCostSearchKey } = props
+        filteredPetition, costSearchKey, setCostSearchKey,sortBy,
+        setSortBy, handleSort} = props
     return (
-        <div style={{marginTop: "20px"}}>
+        <div style={{display:"flex", alignItems:'center' , marginLeft: "50px", marginTop: "20px"}}>
             <FormControl sx={{m: 1, width: 300}}>
-                <TextField id="outlined-basic" label="Search for petition" variant="outlined" size="small"
+                <TextField id="outlined-basic" label="Search for petition" variant="outlined"
                            value={searchKey} onChange={e => {
                     setSearchKey(e.target.value)
                 }}></TextField>
@@ -40,12 +44,27 @@ const SearchNavbar = (props:SearchNavbarProps) => {
                 </Select>
             </FormControl>
             <FormControl sx={{m: 1, width: 200}}>
-                <TextField id="outlined-basic" label="Filter by Cost" variant="outlined" size="small"
+                <TextField id="outlined-basic" label="Filter by Cost" variant="outlined"
                            value={costSearchKey} onChange={e => {
                     setCostSearchKey(e.target.value)
                 }}></TextField>
             </FormControl>
-            <Button variant="outlined" onClick={filteredPetition} sx={{m: 1}}>Search</Button>
+            <FormControl  sx={{m: 1, width: 100}}>
+                <InputLabel>Sort</InputLabel>
+                <Select
+                    value={sortBy}
+                    label="Sort"
+                    onChange={handleSort}>
+                    <MenuItem value={'CREATED_ASC'}>Oldest to newest</MenuItem>
+                    <MenuItem value={'CREATED_DESC'}>Newest to oldest</MenuItem>
+                    <MenuItem value={'ALPHABETICAL_ASC'}>Alphabetically by title, A-Z</MenuItem>
+                    <MenuItem value={'ALPHABETICAL_DESC'}>Alphabetically by title, Z-A</MenuItem>
+                    <MenuItem value={'COST_ASC'}>By cost ascending</MenuItem>
+                    <MenuItem value={'COST_DESC'}>By cost descending</MenuItem>
+                </Select>
+            </FormControl>
+            <Button variant="contained" onClick={filteredPetition} size="large" sx={{m: 1, height:55}}>
+                Search</Button>
         </div>
 
     )

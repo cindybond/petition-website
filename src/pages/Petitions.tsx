@@ -2,7 +2,7 @@ import axios from 'axios';
 import React from "react";
 import {
     Button, Card, CardActionArea, CardContent, CardMedia, Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput,
-    Paper, Select,
+    Paper, Select, SelectChangeEvent,
     Table,
     TableBody,
     TableCell,
@@ -50,6 +50,8 @@ const Petitions = () => {
     const [costSearchKey, setCostSearchKey] = React.useState("")
     const [viewPetition, setViewPetition] = React.useState< Array < Petition >>([])
     const [filterCategory, setFilterCategory] = React.useState<number[]>([])
+    const [sortBy, setSortBy] = React.useState("")
+    const [count, setCount] = React.useState(0)
     const url = 'http://localhost:4941/api/v1/petitions'
 
 
@@ -90,6 +92,8 @@ const Petitions = () => {
 
     const filterPetition = () => {
         console.log('Whats here', filterCategory)
+        console.log(sortBy)
+        // let query = `?startIndex=${}`
         let query = ''
         if (searchKey !== "" && filterCategory.length === 0 && costSearchKey.length === 0) {
             query += '?q=' + searchKey
@@ -147,6 +151,15 @@ const Petitions = () => {
             }
         }
 
+        if (sortBy) {
+            if (query === '') {
+                query += '?sortBy=' + sortBy;
+            } else {
+                query += '&sortBy=' + sortBy;
+            }
+        }
+
+
         axios.get(url + query)
             .then((response) => {
                 setErrorFlag(false)
@@ -156,6 +169,11 @@ const Petitions = () => {
                 setErrorFlag(true)
                 setErrorMessage(error.toString())
             })
+    }
+
+    const handleSort = (e:SelectChangeEvent) => {
+        const selectedSort = e.target.value
+        setSortBy(selectedSort)
     }
 
     const showFilteredPetition = () => {
@@ -235,7 +253,8 @@ const Petitions = () => {
                 <div>
                     <SearchNavbar searchKey={searchKey} setSearchKey={setSearchKey} filterCategory={filterCategory}
                                   setFilterCategory={setFilterCategory} categories={categories} filteredPetition={filterPetition}
-                                    costSearchKey={costSearchKey} setCostSearchKey={setCostSearchKey}/>
+                                    costSearchKey={costSearchKey} setCostSearchKey={setCostSearchKey} sortBy={sortBy}
+                                    setSortBy={setSortBy} handleSort={handleSort}/>
                 </div>
                 <div>
                     {showFilteredPetition()}
