@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import { useNavigate } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -12,6 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from "axios";
 
 function Copyright(props: any) {
   return (
@@ -30,14 +32,34 @@ function Copyright(props: any) {
 const defaultTheme = createTheme();
 
 export default function Register() {
+  const [errorFlag, setErrorFlag] = React.useState(false)
+  const [errorMessage, setErrorMessage] = React.useState("")
+  const [userData, setUserData] = React.useState< Array< userRegister>>([])
+  const [logStatus, setLogStatus] = React.useState(false)
+  const navigate = useNavigate()
+  const handleChange = (e:any) => {
+    const data = {...userData}
+    data[e.target.name] = e.target.value
+    setUserData(data)
+  }
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    postRegister()
   };
+
+  const postRegister = () => {
+    axios.post(`http://localhost:4941/api/v1/users/register`, userData)
+        .then((response) => {
+          setErrorFlag(false)
+          setErrorMessage("")
+          setLogStatus(true)
+          navigate('/')
+        }, (error) => {
+          setErrorFlag(true)
+          setErrorMessage(error.toString())
+        })
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -67,6 +89,7 @@ export default function Register() {
                   fullWidth
                   id="firstName"
                   label="First Name"
+                  onChange={handleChange}
                   autoFocus
                 />
               </Grid>
@@ -78,6 +101,7 @@ export default function Register() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -88,6 +112,7 @@ export default function Register() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -99,6 +124,7 @@ export default function Register() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>

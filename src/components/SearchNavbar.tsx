@@ -8,7 +8,7 @@ interface SearchNavbarProps {
     filterCategory:number[],
     setFilterCategory:React.Dispatch<React.SetStateAction<number[]>>,
     categories:Categories[],
-    filteredPetition:()=>void
+    filteredPetition:()=>void,
     costSearchKey: string,
     setCostSearchKey:React.Dispatch<React.SetStateAction<string>>
     sortBy:string,
@@ -21,7 +21,7 @@ const SearchNavbar = (props:SearchNavbarProps) => {
         filteredPetition, costSearchKey, setCostSearchKey,sortBy,
         setSortBy, handleSort} = props
     return (
-        <div style={{display:"flex", alignItems:'center' , marginLeft: "50px", marginTop: "20px"}}>
+        <div style={{display:"flex", alignItems:'center' ,marginLeft:'65px', marginTop: "20px"}}>
             <FormControl sx={{m: 1, width: 300}}>
                 <TextField id="outlined-basic" label="Search for petition" variant="outlined"
                            value={searchKey} onChange={e => {

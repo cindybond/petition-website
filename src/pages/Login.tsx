@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 function Copyright(props: any) {
   return (
@@ -34,28 +35,26 @@ export default function Login() {
   const [token, setToken] = React.useState("")
   const [errorFlag, setErrorFlag] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
-  const [data, setData] = React.useState({
-    email:"",
-    password:""
-  });
+  const [userData, setUserData] = React.useState<Array<userLogin>>([])
+  const navigate = useNavigate()
 
   const handleChange = (e:any) => {
-    const value = e.target.value
-    setData({
-      ...data,
-      [e.target.name]:value
-    })
+    const data = {...userData}
+    data[e.target.name] = e.target.value
+    setUserData(data)
   }
-  const handleSubmit = (e:any) => {
-    e.preventDefault()
-    const userData = {
-      email: data.email,
-      password: data.password
-    }
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    postLogin()
+  };
+
+  const postLogin = () => {
     axios.post('http://localhost:4941/api/v1/users/login', userData)
         .then((response) => {
-          console.log(response.status, response.data.token)
+          setErrorFlag(false)
+          setErrorMessage("")
+          navigate('/')
         }, (error) => {
             setErrorFlag(true)
             setErrorMessage(error.toString())

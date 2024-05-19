@@ -35,6 +35,8 @@ import SearchNavbar from "../components/SearchNavbar";
 import Toolbar from "@mui/material/Toolbar";
 import Link from "@mui/material/Link";
 import Avatar from "@mui/material/Avatar";
+import PetitionDetails from "./PetitionDetails";
+import CasualNavbar from "../components/CasualNavbar";
 const card: CSS.Properties = {
     margin: "20px",
 }
@@ -67,6 +69,7 @@ const Petitions = () => {
     const [pageSize, setPageSize] = React.useState(10)
     const [currentPage, setCurrentPage] = React.useState(1)
     const [startIndex, setStartIndex] = React.useState(0)
+    const [logStatus, setLogStatus] = React.useState(false)
     const url = 'http://localhost:4941/api/v1/petitions'
     const navigate = useNavigate()
 
@@ -226,20 +229,7 @@ const Petitions = () => {
         return (
             <div>
                 <div>
-                    <React.Fragment>
-                        <Toolbar sx={{ display:'flex', borderBottom: 1, borderColor: 'divider'}}>
-                            <Link href="#" underline="none" color="inherit" sx={{flex:1}}>
-                                <Typography variant="h4" align="left">PETITION SITE</Typography>
-                            </Link>
-
-                            <Button variant="outlined" onClick={handleRegister} sx={{margin:'10px'}}>
-                                Register
-                            </Button>
-                            <Button variant="outlined" onClick={handleSignIn}>
-                                Sign In
-                            </Button>
-                        </Toolbar>
-                    </React.Fragment>
+                    {logStatus ? '' : <CasualNavbar handleRegister={handleRegister} handleSignIn={handleSignIn}/>}
                 </div>
                 <div>
                     <SearchNavbar searchKey={searchKey} setSearchKey={setSearchKey} filterCategory={filterCategory}
