@@ -10,7 +10,37 @@ type Petition = {
     supportingCost: number
 }
 
+type supportTierPost = {
+    title: string,
+    description: string
+    cost: number
+}
+
+type supportTier = {
+    supportTierId: number,
+} & supportTierPost
+
 type Categories = {
     categoryId: number,
     name: string
 }
+
+type postSupport = {
+    supportTierId: number,
+    message: string
+}
+
+type supporter = {
+    supportId: number,
+    supporterId: number,
+    supporterFirstName: string,
+    supporterLastName: string,
+    timestamp: string
+} & postSupport
+
+type PetitionFull = {
+    description: string,
+    moneyRaised: number,
+    supportTiers: supportTier[]
+} & petition
+

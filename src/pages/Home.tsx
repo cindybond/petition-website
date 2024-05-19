@@ -9,24 +9,35 @@ import Link from '@mui/material/Link';
 import {Card, CardActionArea, CardContent, CardMedia, InputBase, Paper} from '@mui/material';
 import CSS from 'csstype';
 import Grid from "@mui/material/Grid";
+import {useNavigate} from "react-router-dom";
     const card: CSS.Properties = {
         padding:'10px',
         margin:'60px',
     }
 
+
 const Home: React.FC = () => {
-  return (
+
+    const navigate = useNavigate()
+
+    const handleRegister = () => {
+        navigate('/register')
+    }
+
+    const handleSignIn = () => {
+        navigate('/login')
+    }
+    return (
       <div>
           <React.Fragment>
               <Toolbar sx={{ display:'flex', borderBottom: 1, borderColor: 'divider'}}>
                   <Link href="#" underline="none" color="inherit" sx={{flex:1}}>
                       <Typography variant="h4" align="left">PETITION SITE</Typography>
                   </Link>
-
-                  <Button variant="outlined" href="http://localhost:8080/register" sx={{margin:'10px'}}>
+                  <Button variant="outlined" onClick={handleRegister} sx={{margin:'10px'}}>
                       Register
                   </Button>
-                  <Button variant="outlined" href="http://localhost:8080/login">
+                  <Button variant="outlined" onClick={handleSignIn}>
                       Sign In
                   </Button>
               </Toolbar>

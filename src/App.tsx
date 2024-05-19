@@ -5,6 +5,7 @@ import Petitions from "./pages/Petitions";
 import Home from "./pages/Home";
 import Login from './pages/Login';
 import Register from './pages/Register';
+import PetitionDetails from './pages/PetitionDetails';
 
 function App() {
   return (
@@ -12,8 +13,9 @@ function App() {
         <Router>
           <div>
             <Routes>
-              <Route path="" element={<Home/>}/>
+              <Route path="" element={<Petitions/>}/>
                 <Route path="/petitions" element={<Petitions/>}/>
+                <Route path="/petitions/:id" element={<PetitionDetails/>}/>
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
             </Routes>

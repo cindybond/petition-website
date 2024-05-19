@@ -1,8 +1,21 @@
 import axios from 'axios';
 import React from "react";
 import {
-    Button, Card, CardActionArea, CardContent, CardMedia, Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput,
-    Paper, Select, SelectChangeEvent,
+    Button,
+    Card,
+    CardActionArea,
+    CardContent,
+    CardMedia,
+    Checkbox,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    OutlinedInput,
+    Pagination,
+    Paper,
+    Select,
+    SelectChangeEvent,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -17,29 +30,29 @@ import {Category} from "@mui/icons-material";
 import {Menubar} from "primereact/menubar";
 import Typography from "@mui/material/Typography";
 import Home from "./Home";
+import { useNavigate } from 'react-router-dom'
 import SearchNavbar from "../components/SearchNavbar";
 import Toolbar from "@mui/material/Toolbar";
 import Link from "@mui/material/Link";
 import Avatar from "@mui/material/Avatar";
 const card: CSS.Properties = {
-    padding: "10px",
     margin: "20px",
 }
-interface HeadCell {
-    id: string;
-    label: string;
-    numeric: boolean;
-}
-const headCells: readonly HeadCell[] = [
-    { id: 'petitionID', label: 'Petition ID', numeric: true },
-    { id: 'petitionImage' , label:'Petition Image', numeric: false },
-    { id: 'title', label: 'Title', numeric: false },
-    { id: 'creationDate', label:'Created on', numeric: false },
-    { id: 'ownerFirstName', label:'Created by', numeric: false },
-    { id: 'supportingCost', label:'Supporting Cost', numeric: true},
-    { id: 'category', label:'Category', numeric: false }
-
-]
+// interface HeadCell {
+//     id: string;
+//     label: string;
+//     numeric: boolean;
+// }
+// const headCells: readonly HeadCell[] = [
+//     { id: 'petitionID', label: 'Petition ID', numeric: true },
+//     { id: 'petitionImage' , label:'Petition Image', numeric: false },
+//     { id: 'title', label: 'Title', numeric: false },
+//     { id: 'creationDate', label:'Created on', numeric: false },
+//     { id: 'ownerFirstName', label:'Created by', numeric: false },
+//     { id: 'supportingCost', label:'Supporting Cost', numeric: true},
+//     { id: 'category', label:'Category', numeric: false }
+//
+// ]
 
 const Petitions = () => {
     const [petition, setPetition] = React.useState < Array < Petition >> ([])
@@ -51,14 +64,25 @@ const Petitions = () => {
     const [viewPetition, setViewPetition] = React.useState< Array < Petition >>([])
     const [filterCategory, setFilterCategory] = React.useState<number[]>([])
     const [sortBy, setSortBy] = React.useState("")
-    const [count, setCount] = React.useState(0)
+    const [pageSize, setPageSize] = React.useState(10)
+    const [currentPage, setCurrentPage] = React.useState(1)
+    const [startIndex, setStartIndex] = React.useState(0)
     const url = 'http://localhost:4941/api/v1/petitions'
-
+    const navigate = useNavigate()
 
     React.useEffect(() => {
         getPetition()
         getCategories()
     }, [])
+
+
+    const handleRegister = () => {
+        navigate('/register')
+    }
+
+    const handleSignIn = () => {
+        navigate('/login')
+    }
     const getPetition = () => {
         axios.get(url)
             .then((response) => {
@@ -75,7 +99,6 @@ const Petitions = () => {
     const getCategories = () => {
         axios.get(url + '/categories')
             .then((response) => {
-
                 setErrorFlag(false)
                 setErrorMessage("")
                 setCategories(response.data)
@@ -91,74 +114,31 @@ const Petitions = () => {
     }
 
     const filterPetition = () => {
-        console.log('Whats here', filterCategory)
-        console.log(sortBy)
-        // let query = `?startIndex=${}`
-        let query = ''
-        if (searchKey !== "" && filterCategory.length === 0 && costSearchKey.length === 0) {
-            query += '?q=' + searchKey
+        let query = `?startIndex=${startIndex}&count=${pageSize}`
+
+        if (searchKey) {
+            query += '&q=' + searchKey
         }
-        if (searchKey === "" && filterCategory.length === 0 && costSearchKey.length !== 0) {
-            query += '?supportingCost=' + costSearchKey
-        }
-        if (searchKey !== "" && filterCategory.length === 0 && costSearchKey.length !== 0) {
-            query += '?q=' + searchKey + '&supportingCost=' + costSearchKey
-        }
-        if (searchKey === "" && filterCategory.length !== 0 && costSearchKey.length === 0){
+
+        if (filterCategory) {
             if (filterCategory.length === 1) {
-                query += '?categoryIds=' + filterCategory
+                query += '&categoryIds=' + filterCategory
             } else if (filterCategory.length > 1) {
-                query += '?categoryIds=' + filterCategory[0]
+                query += '&categoryIds=' + filterCategory[0]
                 filterCategory.slice(1).forEach(category => {
                     query += '&categoryIds=' + category
                 })
 
             }
         }
-        if (searchKey !== "" && filterCategory.length !== 0 && costSearchKey.length === 0) {
-            console.log('check')
-            if (filterCategory.length === 1) {
-                query += '?q=' + searchKey + '&categoryIds=' + filterCategory
-            } else if (filterCategory.length > 1) {
-                query += '?q=' + searchKey + '&categoryIds=' + filterCategory[0]
-                filterCategory.slice(1).forEach(category => {
-                    query += '&categoryIds=' + category
-                })
 
-            }
-        }
-        if (searchKey !== "" && filterCategory.length !== 0 && costSearchKey.length !== 0) {
-            console.log('check')
-            if (filterCategory.length === 1) {
-                query += '?q=' + searchKey + '&supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory
-            } else if (filterCategory.length > 1) {
-                query += '?q=' + searchKey + '&supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory[0]
-                filterCategory.slice(1).forEach(category => {
-                    query += '&categoryIds=' + category
-                })
-
-            }
-        }
-        if (searchKey === "" && filterCategory.length !== 0 && costSearchKey.length !== 0){
-            if (filterCategory.length === 1) {
-                query += '?supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory
-            } else if (filterCategory.length > 1) {
-                query += '?supportingCost=' + costSearchKey + '&categoryIds=' + filterCategory[0]
-                filterCategory.slice(1).forEach(category => {
-                    query += '&categoryIds=' + category
-                })
-
-            }
+        if (costSearchKey) {
+            query += '&supportingCost=' + costSearchKey
         }
 
         if (sortBy) {
-            if (query === '') {
-                query += '?sortBy=' + sortBy;
-            } else {
-                query += '&sortBy=' + sortBy;
-            }
+            query += '&sortBy=' + sortBy
         }
-
 
         axios.get(url + query)
             .then((response) => {
@@ -176,12 +156,23 @@ const Petitions = () => {
         setSortBy(selectedSort)
     }
 
+    const handlePageChange = (e: React.ChangeEvent<unknown>, page:number) => {
+        setCurrentPage(page)
+        const index = (page - 1) * pageSize
+        setStartIndex(index);
+        filterPetition();
+    }
+
+    const handlePetitionClicked = (petitionId:number) => {
+        navigate('/petitions/' + petitionId)
+    }
+
     const showFilteredPetition = () => {
         return (
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
                 {viewPetition.map((row: Petition) => (
-                    <Paper elevation={3} style={card} key={row.petitionId}>
-                        <CardActionArea component="a" href="#">
+                    <Paper elevation={5} style={card} key={row.petitionId}>
+                        <CardActionArea component="a" href="#" onClick={() => handlePetitionClicked(row.petitionId)}>
                             <Card sx={{ maxWidth:500 }}>
                                 <CardMedia
                                     component="img"
@@ -241,10 +232,10 @@ const Petitions = () => {
                                 <Typography variant="h4" align="left">PETITION SITE</Typography>
                             </Link>
 
-                            <Button variant="outlined" href="http://localhost:8080/register" sx={{margin:'10px'}}>
+                            <Button variant="outlined" onClick={handleRegister} sx={{margin:'10px'}}>
                                 Register
                             </Button>
-                            <Button variant="outlined" href="http://localhost:8080/login">
+                            <Button variant="outlined" onClick={handleSignIn}>
                                 Sign In
                             </Button>
                         </Toolbar>
@@ -258,6 +249,12 @@ const Petitions = () => {
                 </div>
                 <div>
                     {showFilteredPetition()}
+                </div>
+                <div style={{display:'flex' ,alignItems:'center', justifyContent:'center', marginTop:20, marginBottom:20}}>
+                    <Stack spacing={2}>
+                        <Pagination count={Math.ceil(petition.length/pageSize)} page={currentPage} color="secondary"
+                                    onChange={handlePageChange} showFirstButton showLastButton/>
+                    </Stack>
                 </div>
             </div>
 
