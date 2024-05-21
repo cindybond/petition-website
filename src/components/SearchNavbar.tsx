@@ -3,12 +3,13 @@ import React from "react";
 
 
 interface SearchNavbarProps {
+    startIndex:number,
     searchKey: string,
     setSearchKey: React.Dispatch<React.SetStateAction<string>>,
     filterCategory:number[],
     setFilterCategory:React.Dispatch<React.SetStateAction<number[]>>,
     categories:Categories[],
-    filteredPetition:()=>void,
+    filteredPetition:(startIndex:number)=>void,
     costSearchKey: string,
     setCostSearchKey:React.Dispatch<React.SetStateAction<string>>
     sortBy:string,
@@ -16,7 +17,7 @@ interface SearchNavbarProps {
     handleSort:(e:SelectChangeEvent)=>void
 }
 const SearchNavbar = (props:SearchNavbarProps) => {
-    const{ searchKey,filterCategory,categories,
+    const{startIndex, searchKey,filterCategory,categories,
         setSearchKey,setFilterCategory,
         filteredPetition, costSearchKey, setCostSearchKey,sortBy,
         setSortBy, handleSort} = props
@@ -63,7 +64,7 @@ const SearchNavbar = (props:SearchNavbarProps) => {
                     <MenuItem value={'COST_DESC'}>By cost descending</MenuItem>
                 </Select>
             </FormControl>
-            <Button variant="contained" onClick={filteredPetition} size="large" sx={{m: 1, height:55}}>
+            <Button variant="contained" onClick={() => filteredPetition(startIndex)} size="large" sx={{m: 1, height:55}}>
                 Search</Button>
         </div>
 

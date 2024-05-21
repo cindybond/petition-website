@@ -30,31 +30,19 @@ import {Category} from "@mui/icons-material";
 import {Menubar} from "primereact/menubar";
 import Typography from "@mui/material/Typography";
 import Home from "./Home";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import SearchNavbar from "../components/SearchNavbar";
 import Toolbar from "@mui/material/Toolbar";
 import Link from "@mui/material/Link";
 import Avatar from "@mui/material/Avatar";
 import PetitionDetails from "./PetitionDetails";
 import CasualNavbar from "../components/CasualNavbar";
+import useStore from "../store";
+import UserNavbar from "../components/UserNavbar";
 const card: CSS.Properties = {
     margin: "20px",
 }
-// interface HeadCell {
-//     id: string;
-//     label: string;
-//     numeric: boolean;
-// }
-// const headCells: readonly HeadCell[] = [
-//     { id: 'petitionID', label: 'Petition ID', numeric: true },
-//     { id: 'petitionImage' , label:'Petition Image', numeric: false },
-//     { id: 'title', label: 'Title', numeric: false },
-//     { id: 'creationDate', label:'Created on', numeric: false },
-//     { id: 'ownerFirstName', label:'Created by', numeric: false },
-//     { id: 'supportingCost', label:'Supporting Cost', numeric: true},
-//     { id: 'category', label:'Category', numeric: false }
-//
-// ]
+
 
 const Petitions = () => {
     const [petition, setPetition] = React.useState < Array < Petition >> ([])
@@ -69,13 +57,17 @@ const Petitions = () => {
     const [pageSize, setPageSize] = React.useState(10)
     const [currentPage, setCurrentPage] = React.useState(1)
     const [startIndex, setStartIndex] = React.useState(0)
-    const [logStatus, setLogStatus] = React.useState(false)
     const url = 'http://localhost:4941/api/v1/petitions'
     const navigate = useNavigate()
+    const user = useStore()
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const ownerId = searchParams.get("ownerId");
 
     React.useEffect(() => {
         getPetition()
         getCategories()
+        filterPetition(startIndex)
     }, [])
 
 
@@ -116,7 +108,7 @@ const Petitions = () => {
         return category ? category.name : '';
     }
 
-    const filterPetition = () => {
+    const filterPetition = (startIndex:number) => {
         let query = `?startIndex=${startIndex}&count=${pageSize}`
 
         if (searchKey) {
@@ -143,6 +135,10 @@ const Petitions = () => {
             query += '&sortBy=' + sortBy
         }
 
+        if(ownerId) {
+            query += '&ownerId=' + ownerId
+        }
+
         axios.get(url + query)
             .then((response) => {
                 setErrorFlag(false)
@@ -162,8 +158,10 @@ const Petitions = () => {
     const handlePageChange = (e: React.ChangeEvent<unknown>, page:number) => {
         setCurrentPage(page)
         const index = (page - 1) * pageSize
+        console.log('check')
+        console.log(index)
         setStartIndex(index);
-        filterPetition();
+        filterPetition(index)
     }
 
     const handlePetitionClicked = (petitionId:number) => {
@@ -226,14 +224,15 @@ const Petitions = () => {
             </div>
         )
     } else {
+
         return (
             <div>
                 <div>
-                    {logStatus ? '' : <CasualNavbar handleRegister={handleRegister} handleSignIn={handleSignIn}/>}
+                    {user.user.userId !== -1 ? <UserNavbar/> : <CasualNavbar handleRegister={handleRegister} handleSignIn={handleSignIn}/>}
                 </div>
                 <div>
-                    <SearchNavbar searchKey={searchKey} setSearchKey={setSearchKey} filterCategory={filterCategory}
-                                  setFilterCategory={setFilterCategory} categories={categories} filteredPetition={filterPetition}
+                    <SearchNavbar startIndex={startIndex} searchKey={searchKey} setSearchKey={setSearchKey} filterCategory={filterCategory}
+                                  setFilterCategory={setFilterCategory} categories={categories} filteredPetition={() => filterPetition(startIndex)}
                                     costSearchKey={costSearchKey} setCostSearchKey={setCostSearchKey} sortBy={sortBy}
                                     setSortBy={setSortBy} handleSort={handleSort}/>
                 </div>

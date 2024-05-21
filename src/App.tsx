@@ -6,6 +6,9 @@ import Home from "./pages/Home";
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PetitionDetails from './pages/PetitionDetails';
+import User from "./pages/Profile";
+import Profile from "./pages/Profile";
+import MyPetitions from "./pages/MyPetitions";
 
 function App() {
   return (
@@ -18,6 +21,8 @@ function App() {
                 <Route path="/petitions/:id" element={<PetitionDetails/>}/>
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
+                <Route path="/profile" element={<Profile />}/>
+                <Route path="/myPetitions" element={<MyPetitions />}/>
             </Routes>
           </div>
         </Router>

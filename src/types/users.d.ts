@@ -20,16 +20,17 @@ type user = {
     authToken: string
 }
 
+type userReturn = {
+    userId: number,
+    token: string
+}
+
 type userReturnWithEmail = {
     firstName: string,
     lastName: string,
     email:string
 }
 
-type userReturn = {
-    firstName: string,
-    lastName: string
-}
 
 type userPatch = {
     firstName: string,

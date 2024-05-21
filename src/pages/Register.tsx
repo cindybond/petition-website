@@ -14,6 +14,8 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
+import useStore from "../store";
+import {useState} from "react";
 
 function Copyright(props: any) {
   return (
@@ -35,7 +37,10 @@ export default function Register() {
   const [errorFlag, setErrorFlag] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
   const [userData, setUserData] = React.useState< Array< userRegister>>([])
-  const [logStatus, setLogStatus] = React.useState(false)
+  const [selectedImage, setSelectedImage] = React.useState<File |null>(null);
+  const setUser = useStore(state => state.setUser)
+  const url = 'http://localhost:4941/api/v1'
+
   const navigate = useNavigate()
   const handleChange = (e:any) => {
     const data = {...userData}
@@ -43,23 +48,59 @@ export default function Register() {
     setUserData(data)
   }
 
+  const handleUploadPhoto = () => {
+    console.log('Uploading photo')
+  }
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     postRegister()
   };
+
+  const handleImageChange = (e:any) => {
+      setSelectedImage(e.target.files[0])
+  }
 
   const postRegister = () => {
     axios.post(`http://localhost:4941/api/v1/users/register`, userData)
         .then((response) => {
           setErrorFlag(false)
           setErrorMessage("")
-          setLogStatus(true)
-          navigate('/')
+          postLogin()
+          setUser(response.data)
         }, (error) => {
           setErrorFlag(true)
           setErrorMessage(error.toString())
         })
   }
+
+  const postLogin = () => {
+    axios.post('http://localhost:4941/api/v1/users/login', userData)
+        .then((response) => {
+          setErrorFlag(false)
+          setErrorMessage("")
+          setUser(response.data)
+          const userId = response.data.userId
+          const token = response.data.token
+            console.log(selectedImage)
+            uploadImage(userId, token)
+          navigate('/')
+        }, (error) => {
+          setErrorFlag(true)
+          setErrorMessage(error.toString())
+        })
+  };
+  const uploadImage = (userId:number, token:string) => {
+      if(selectedImage!== null) {
+          axios.put(url + `/users/${userId}/image`, selectedImage ,{headers: {'Content-Type':selectedImage?.type, 'X-Authorization': token}})
+              .then((response) => {
+                  console.log('image uploaded')
+              }, (error) => {
+                  setErrorFlag(true)
+                  setErrorMessage(error.toString())
+              })
+      }
+      }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -83,62 +124,80 @@ export default function Register() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  onChange={handleChange}
-                  autoFocus
+                    autoComplete="given-name"
+                    name="firstName"
+                    required
+                    fullWidth
+                    id="firstName"
+                    label="First Name"
+                    onChange={handleChange}
+                    autoFocus
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                  onChange={handleChange}
+                    required
+                    fullWidth
+                    id="lastName"
+                    label="Last Name"
+                    name="lastName"
+                    autoComplete="family-name"
+                    onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  onChange={handleChange}
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                  onChange={handleChange}
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="new-password"
+                    onChange={handleChange}
                 />
               </Grid>
+              <div style={{alignItems:'center', margin:'40px'}}>
+                {selectedImage && (
+                    <div>
+                      <img
+                          alt="not found"
+                          width={"250px"}
+                          src={URL.createObjectURL(selectedImage)}
+                      />
+                      <br /> <br />
+                      <button onClick={() => setSelectedImage(null)}>Remove</button>
+                    </div>
+                )}
+
+                <Typography>Upload Profile Photo</Typography>
+                  <input type="file" id="myFile"
+                         name="filename" accept="image/*" onChange={handleImageChange}
+                  />
+              </div>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
+                    control={<Checkbox value="allowExtraEmails" color="primary"/>}
+                    label="I want to receive inspiration, marketing promotions and updates via email."
                 />
               </Grid>
             </Grid>
             <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
             >
               Sign Up
             </Button>

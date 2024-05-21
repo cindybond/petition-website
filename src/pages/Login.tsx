@@ -14,6 +14,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import useStore from "../store";
 
 function Copyright(props: any) {
   return (
@@ -32,11 +33,13 @@ function Copyright(props: any) {
 const defaultTheme = createTheme();
 
 export default function Login() {
-  const [token, setToken] = React.useState("")
+
   const [errorFlag, setErrorFlag] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
   const [userData, setUserData] = React.useState<Array<userLogin>>([])
   const navigate = useNavigate()
+  const setUser = useStore(state => state.setUser)
+
 
   const handleChange = (e:any) => {
     const data = {...userData}
@@ -54,6 +57,7 @@ export default function Login() {
         .then((response) => {
           setErrorFlag(false)
           setErrorMessage("")
+            setUser(response.data)
           navigate('/')
         }, (error) => {
             setErrorFlag(true)

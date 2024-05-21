@@ -19,6 +19,9 @@ import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import Container from "@mui/material/Container";
 import petitions from "./Petitions";
+import UserNavbar from "../components/UserNavbar";
+import CasualNavbar from "../components/CasualNavbar";
+import useStore from "../store";
 const card: CSS.Properties = {
     margin: "20px",
 }
@@ -34,6 +37,7 @@ const PetitionDetails = () => {
     const [categories, setCategories] = React.useState < Array < Categories >>([])
     const url = 'http://localhost:4941/api/v1/petitions'
     const navigate = useNavigate()
+    const user = useStore()
     React.useEffect(() => {
         getDetails()
         getSupporters()
@@ -41,6 +45,13 @@ const PetitionDetails = () => {
     }, [id])
     const handlePetitionClicked = (petitionId:number) => {
         navigate('/petitions/' + petitionId)
+    }
+    const handleRegister = () => {
+        navigate('/register')
+    }
+
+    const handleSignIn = () => {
+        navigate('/login')
     }
     const getDetails = () => {
         axios.get(`http://localhost:4941/api/v1/petitions/${id}`)
@@ -342,6 +353,9 @@ const PetitionDetails = () => {
 
     return (
         <div>
+            <div>
+                {user.user.userId !== -1 ? <UserNavbar/> : <CasualNavbar handleRegister={handleRegister} handleSignIn={handleSignIn}/>}
+            </div>
             {showPetitionDetails()}
         </div>
     )
