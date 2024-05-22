@@ -3,6 +3,7 @@ import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import {Button} from "@mui/material";
 import React from "react";
+import {useNavigate} from "react-router-dom";
 
 interface casualNavbarProps {
     handleRegister:()=>void,
@@ -10,14 +11,15 @@ interface casualNavbarProps {
 }
 const CasualNavbar =(props:casualNavbarProps) => {
     const { handleRegister, handleSignIn } = props
+    const navigate = useNavigate()
+    const handleGoHome = () => {
+        navigate('/petitions')
+    }
     return(
         <div>
             <React.Fragment>
                 <Toolbar sx={{ display:'flex', borderBottom: 1, borderColor: 'divider'}}>
-                    <Link href="#" underline="none" color="inherit" sx={{flex:1}}>
-                        <Typography variant="h4" align="left">PETITION SITE</Typography>
-                    </Link>
-
+                    <Button sx={{marginLeft:'40px', marginRight:'auto', fontSize:'40px'}} onClick={handleGoHome}>PETITION SITE</Button>
                     <Button variant="outlined" onClick={handleRegister} sx={{margin:'10px'}}>
                         Register
                     </Button>

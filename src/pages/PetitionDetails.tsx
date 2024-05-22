@@ -2,6 +2,7 @@ import axios from "axios";
 import React from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {
+    Alert,
     Button,
     Card,
     CardActionArea,
@@ -11,7 +12,7 @@ import {
     ListItem,
     ListItemAvatar,
     ListItemText,
-    Paper
+    Paper, Snackbar, TextField
 } from "@mui/material";
 import CSS from "csstype";
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -33,6 +34,11 @@ const PetitionDetails = () => {
     const { id } = useParams()
     const [similarPetition, setSimilarPetition] = React.useState < Array < Petition >> ([])
     const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
+    const [openSupportDialog, setOpenSupportDialog] =React.useState(false)
+    const [snackOpen, setSnackOpen] = React.useState(false)
+    const [snackMessage, setSnackMessage] = React.useState("")
+    const [currentTier, setCurrentTier] = React.useState(0)
+    const [supportData, setSupportData] = React.useState<Array<postSupport>>([])
     const [petitionDetails, setPetitionDetails ] = React.useState < PetitionFull > ([])
     const [errorFlag, setErrorFlag] = React.useState(false)
     const [errorMessage, setErrorMessage] = React.useState("")
@@ -51,7 +57,17 @@ const PetitionDetails = () => {
         getSupporters()
         getCategories()
     }, [id])
-
+    const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackOpen(false);
+    };
+    const handleChange = (e:any) => {
+        const data = {...supportData}
+        data[e.target.name] = e.target.value
+        setSupportData(data)
+    }
     const handlePetitionClicked = (petitionId:number) => {
         navigate('/petitions/' + petitionId)
     }
@@ -72,6 +88,33 @@ const PetitionDetails = () => {
     }
     const handleDeleteDialogClose = () => {
         setOpenDeleteDialog(false)
+    }
+    const handleSupportPetitionOpen = (supportTierId:number) => {
+        if (token) {
+            setOpenSupportDialog(true)
+            setCurrentTier(supportTierId)
+        } else {
+            navigate('/login')
+        }
+
+    }
+    const handleSupportPetitionClose = () => {
+        setOpenSupportDialog(false)
+    }
+    const postSupport = (supportTierId:number) => {
+        axios.post(url + `/${petitionId}/supporters`,{ ...supportData, supportTierId: supportTierId },{headers: {'X-Authorization': token}})
+            .then((response) => {
+                console.log("Supported", supportTierId)
+                handleSupportPetitionClose()
+                getDetails()
+                window.location.reload()
+            }, (error) => {
+                setErrorFlag(true)
+                console.log(error.statusText)
+                setErrorMessage(error.toString())
+                setSnackMessage(error.response.statusText.toString())
+                setSnackOpen(true)
+            })
     }
 
     const deletePetition =() => {
@@ -134,9 +177,6 @@ const PetitionDetails = () => {
                     }
                     return acc;
                 }, []);
-
-                console.log(mergedPetitions)
-                console.log(uniquePetitions)
                 setSimilarPetition(uniquePetitions);
             }))
             .catch((error) => {
@@ -185,8 +225,11 @@ const PetitionDetails = () => {
                         <Typography variant="subtitle1" color="text.secondary">
                             {row.description}
                         </Typography>
-                        <Button variant="contained" color="secondary" sx={{marginTop:'10px'}}>SUPPORT ${row.cost}</Button>
+                        {user.user.userId === petitionOwner ? <Typography variant="overline" color="secondary" fontSize="16px">COST ${row.cost}</Typography>
+                            : <Button variant="contained" color="secondary" sx={{marginTop:'10px'}}
+                                      onClick={()=> handleSupportPetitionOpen(row.supportTierId)}>SUPPORT ${row.cost}</Button>}
                         <Divider sx={{marginTop:'30px'}}/>
+
                     </div>
                 ))}
             </div>
@@ -393,6 +436,43 @@ const PetitionDetails = () => {
                         </Button>
                     </DialogActions>
                 </Dialog>
+                {/*Support Dialog*/}
+                <Dialog
+                    open={openSupportDialog}
+                    onClose={handleSupportPetitionClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description">
+                    <DialogTitle id="aler-dialog-title">
+                        {"Give your support"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <TextField autoFocus label="Message" name="message" fullWidth variant="standard" onChange={handleChange}></TextField>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleSupportPetitionClose}>Cancel</Button>
+                        <Button variant="outlined" color="error" onClick={() => {
+                            postSupport(currentTier)}}  autoFocus>
+                            Support
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    autoHideDuration={3000}
+                    open={snackOpen}
+                    onClose={handleSnackClose}
+                    key={snackMessage}
+                >
+                    <Alert onClose={handleSnackClose} severity="error" sx={{
+                        width:'100%'
+                    }}>
+                        {snackMessage}
+                    </Alert>
+                </Snackbar>
 
 
             </div>
