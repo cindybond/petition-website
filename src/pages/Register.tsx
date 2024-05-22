@@ -48,10 +48,6 @@ export default function Register() {
     setUserData(data)
   }
 
-  const handleUploadPhoto = () => {
-    console.log('Uploading photo')
-  }
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     postRegister()

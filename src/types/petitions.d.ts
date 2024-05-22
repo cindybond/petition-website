@@ -44,3 +44,9 @@ type PetitionFull = {
     supportTiers: supportTier[]
 } & petition
 
+type createPetition = {
+    title: string,
+    description: string,
+    categoryId: number,
+    supportTiers: supportTierPost[]
+}

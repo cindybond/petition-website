@@ -1,13 +1,14 @@
 import axios from "axios";
 import React from "react";
 import {useNavigate} from "react-router-dom";
-import {Card, CardActionArea, CardContent, CardMedia, Paper} from "@mui/material";
+import {Button, Card, CardActionArea, CardContent, CardMedia, Paper} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import CSS from "csstype";
 import useStore from "../store";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import UserNavbar from "../components/UserNavbar";
+import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 const card: CSS.Properties = {
     margin: "20px",
 }
@@ -95,8 +96,6 @@ const MyPetitions = () => {
                                                 {row.ownerFirstName} {row.ownerLastName} on {row.creationDate}
                                             </Typography>
                                         </div>
-
-
                                     </CardContent>
 
                                 </Card>
@@ -124,6 +123,7 @@ const MyPetitions = () => {
                 <UserNavbar/>
             </div>
             <Typography variant='overline' fontSize="30px">My Petitions</Typography>
+
             <div>
                 {showMyPetition()}
             </div>

@@ -9,6 +9,8 @@ import PetitionDetails from './pages/PetitionDetails';
 import User from "./pages/Profile";
 import Profile from "./pages/Profile";
 import MyPetitions from "./pages/MyPetitions";
+import CreatePetition from "./pages/CreatePetition";
+import EditPetition from "./pages/EditPetition";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/profile" element={<Profile />}/>
                 <Route path="/myPetitions" element={<MyPetitions />}/>
+                <Route path="/create" element={<CreatePetition />}/>
+                <Route path="/edit/:petitionId" element={<EditPetition />}/>
             </Routes>
           </div>
         </Router>

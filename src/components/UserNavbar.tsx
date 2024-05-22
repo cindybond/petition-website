@@ -50,48 +50,84 @@ const UserNavbar = () => {
         removeUser(user)
         navigate('/')
     }
-
+    const handleCreatePetition = () => {
+        navigate('/create')
+    }
     return (
         <div>
             <React.Fragment>
                 <Toolbar sx={{display: 'flex', borderBottom: 1, borderColor: 'divider'}}>
-                    <Button sx={{marginLeft:'40px', marginRight:'1100px', fontSize:'40px'}} onClick={handleGoHome}>PETITION SITE</Button>
-                    <Button variant="contained" sx={{marginRight:'30px'}}>Create Petition</Button>
-                    <Button sx={{marginRight:'30px'}} onClick={handleMyPetitions}>My Petitions</Button>
-                    <Box sx={{ flexGrow: 0 }}>
-                    <Tooltip title="Open settings">
-                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                            <Avatar
-                                alt="User Image"
-                                src={`http://localhost:4941/api/v1/users/${userId}/image`}
-                                sx={{ width: 56, height: 56 }}/>
-                        </IconButton>
-                    </Tooltip>
-                    <Menu
-                        sx={{ mt: '45px' }}
-                        id="menu-appbar"
-                        anchorEl={anchorElUser}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        open={Boolean(anchorElUser)}
-                        onClose={handleCloseUserMenu}
-                    >
-                        <MenuItem onClick={handleOpenProfile}>Profile</MenuItem>
-                        <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                    </Menu>
-                </Box>
-                </Toolbar>
+                    <Button sx={{marginLeft:'40px', marginRight:'auto', fontSize:'40px'}} onClick={handleGoHome}>PETITION SITE</Button>
+                    <div style={{display:'flex'}}>
+                        <Button variant="contained"
+                                onClick={handleCreatePetition}
+                                sx={{marginLeft: '30px', marginRight:'30px', display: { xs: 'none', md: 'block' }}}>
+                            Create Petition</Button>
+                        <Button sx={{marginRight:'30px', display: { xs: 'none', md: 'block' }}} onClick={handleMyPetitions}>My Petitions</Button>
+                        <Box sx={{ flexGrow: 1 }} />
+                        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                            <Tooltip title="Open settings">
+                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                    <Avatar
+                                        alt="User Image"
+                                        src={`http://localhost:4941/api/v1/users/${userId}/image`}
+                                        sx={{ width: 56, height: 56, marginRight:'50px'}}/>
+                                </IconButton>
+                            </Tooltip>
+                            <Menu
+                                sx={{ mt: '45px' }}
+                                id="menu-appbar"
+                                anchorEl={anchorElUser}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                open={Boolean(anchorElUser)}
+                                onClose={handleCloseUserMenu}
+                            >
+                                <MenuItem onClick={handleOpenProfile}>Profile</MenuItem>
+                                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                            </Menu>
+                        </Box>
+                        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                <Avatar
+                                    alt="User Image"
+                                    src={`http://localhost:4941/api/v1/users/${userId}/image`}
+                                    sx={{ width: 56, height: 56 }}/>
+                            </IconButton>
+                            <Menu
+                                sx={{ mt: '45px' }}
+                                id="menu-appbar"
+                                anchorEl={anchorElUser}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                open={Boolean(anchorElUser)}
+                                onClose={handleCloseUserMenu}
+                            >
+                                <MenuItem onClick={handleOpenProfile}>Profile</MenuItem>
+                                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                            </Menu>
+                        </Box>
+                    </div>
 
+                </Toolbar>
             </React.Fragment>
         </div>
     )
+
 }
 
 export default UserNavbar;

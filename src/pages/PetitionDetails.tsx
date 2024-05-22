@@ -2,10 +2,11 @@ import axios from "axios";
 import React from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {
+    Button,
     Card,
     CardActionArea,
     CardContent,
-    CardMedia, Divider, Icon,
+    CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Icon,
     List,
     ListItem,
     ListItemAvatar,
@@ -22,6 +23,8 @@ import petitions from "./Petitions";
 import UserNavbar from "../components/UserNavbar";
 import CasualNavbar from "../components/CasualNavbar";
 import useStore from "../store";
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
+import DeleteIcon from '@mui/icons-material/Delete';
 const card: CSS.Properties = {
     margin: "20px",
 }
@@ -29,6 +32,7 @@ const card: CSS.Properties = {
 const PetitionDetails = () => {
     const { id } = useParams()
     const [similarPetition, setSimilarPetition] = React.useState < Array < Petition >> ([])
+    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
     const [petitionDetails, setPetitionDetails ] = React.useState < PetitionFull > ([])
     const [errorFlag, setErrorFlag] = React.useState(false)
     const [errorMessage, setErrorMessage] = React.useState("")
@@ -38,11 +42,14 @@ const PetitionDetails = () => {
     const url = 'http://localhost:4941/api/v1/petitions'
     const navigate = useNavigate()
     const user = useStore()
+    const petitionOwner = petitionDetails.ownerId
+    const petitionId = petitionDetails.petitionId
     React.useEffect(() => {
         getDetails()
         getSupporters()
         getCategories()
     }, [id])
+
     const handlePetitionClicked = (petitionId:number) => {
         navigate('/petitions/' + petitionId)
     }
@@ -53,6 +60,21 @@ const PetitionDetails = () => {
     const handleSignIn = () => {
         navigate('/login')
     }
+
+    const handleEditPetition = () => {
+        navigate(`/edit/${petitionId}`)
+    }
+
+    const handleDeleteDialogOpen = () => {
+        setOpenDeleteDialog(true)
+    }
+    const handleDeleteDialogClose = () => {
+        setOpenDeleteDialog(false)
+    }
+
+    // const deletePetition =() => {
+    //     axios.delete(url)
+    // }
     const getDetails = () => {
         axios.get(`http://localhost:4941/api/v1/petitions/${id}`)
             .then((response) => {
@@ -78,32 +100,6 @@ const PetitionDetails = () => {
                 setErrorMessage(error.toString())
             })
     }
-    // const getSameOwner = (ownerId:number) => {
-    //     axios.get(url + `?ownerId=${ownerId}`)
-    //         .then((response) => {
-    //             setErrorFlag(false)
-    //             setErrorMessage("")
-    //             const filterOwner = response.data.petitions
-    //             const filteredOwner = filterOwner.filter((petition: Petition) => petition.petitionId !== parseInt(id!));
-    //             setSimilarPetition(filteredOwner)
-    //         }, (error) => {
-    //             setErrorFlag(true)
-    //             setErrorMessage(error.toString())
-    //         })
-    // }
-    // const getSimilarPetitions = (categories:number) => {
-    //     axios.get(`http://localhost:4941/api/v1/petitions?categoryIds=${categories}`)
-    //         .then((response) => {
-    //             setErrorFlag(false);
-    //             setErrorMessage("");
-    //             const filterData = response.data.petitions
-    //             const filteredData = filterData.filter((petition: Petition) => petition.petitionId !== parseInt(id!));
-    //             setSimilarPetition(filteredData);
-    //         }, (error) => {
-    //             setErrorFlag(true);
-    //             setErrorMessage(error.toString());
-    //         });
-    // };
 
     const getSimilarAndSameOwnerPetitions = (categoryId: number, ownerId: number) => {
         axios.all([
@@ -120,9 +116,14 @@ const PetitionDetails = () => {
                 const mergedPetitions = [...similarPetitions, ...ownerPetitions]
 
                 //
-                const uniquePetitions = mergedPetitions.reduce((acc, curr) => {
-                    return acc.includes(curr) ? acc : [...acc, curr];
-                }, [])
+                const uniquePetitions = mergedPetitions.reduce((acc: Petition[], curr: Petition) => {
+                    // Check if the current petition's petitionId already exists in the accumulator array
+                    if (!acc.some(petition => petition.petitionId === curr.petitionId)) {
+                        // If not, add it to the accumulator
+                        acc.push(curr);
+                    }
+                    return acc;
+                }, []);
 
                 console.log(mergedPetitions)
                 console.log(uniquePetitions)
@@ -356,6 +357,37 @@ const PetitionDetails = () => {
             <div>
                 {user.user.userId !== -1 ? <UserNavbar/> : <CasualNavbar handleRegister={handleRegister} handleSignIn={handleSignIn}/>}
             </div>
+            <div style={{display: 'flex', justifyContent: 'flex-end', marginRight: '20px', marginTop:'20px'}}>
+                {user.user.userId === petitionOwner ? <Button variant="outlined" size='large' onClick={handleEditPetition}
+                                                              startIcon={<ModeEditOutlineIcon/>}>EDIT PETITION</Button> : ""}
+                {user.user.userId === petitionOwner ? <Button variant="contained" size='large' color='warning' onClick={handleDeleteDialogOpen}
+                                                              sx={{marginLeft:'20px'}}
+                                                              startIcon={<DeleteIcon />}>DELETE PETITION</Button> : ""}
+                {/*Delete Dialog*/}
+                <Dialog
+                    open={openDeleteDialog}
+                    onClose={handleDeleteDialogClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description">
+                    <DialogTitle id="aler-dialog-title">
+                        {"Delete User?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete this user?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDeleteDialogClose}>Cancel</Button>
+                        <Button variant="outlined" color="error" autoFocus>
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+            </div>
+
+
             {showPetitionDetails()}
         </div>
     )
