@@ -42,6 +42,8 @@ const PetitionDetails = () => {
     const url = 'http://localhost:4941/api/v1/petitions'
     const navigate = useNavigate()
     const user = useStore()
+    const userReturn = useStore(state => state.user)
+    const token = userReturn.token
     const petitionOwner = petitionDetails.ownerId
     const petitionId = petitionDetails.petitionId
     React.useEffect(() => {
@@ -72,9 +74,17 @@ const PetitionDetails = () => {
         setOpenDeleteDialog(false)
     }
 
-    // const deletePetition =() => {
-    //     axios.delete(url)
-    // }
+    const deletePetition =() => {
+        axios.delete(url + `/${petitionId}`, {headers: {'X-Authorization': token}})
+            .then ((response) => {
+                handleDeleteDialogClose()
+                console.log('deleted')
+                navigate('/myPetitions')
+            }, (error) => {
+                setErrorFlag(true)
+                setErrorMessage(error.toString())
+            })
+    }
     const getDetails = () => {
         axios.get(`http://localhost:4941/api/v1/petitions/${id}`)
             .then((response) => {
@@ -175,9 +185,7 @@ const PetitionDetails = () => {
                         <Typography variant="subtitle1" color="text.secondary">
                             {row.description}
                         </Typography>
-                        <Typography variant="overline" color='#4a148c' sx={{fontSize:'16px'}}>
-                           COST: ${row.cost}
-                        </Typography>
+                        <Button variant="contained" color="secondary" sx={{marginTop:'10px'}}>SUPPORT ${row.cost}</Button>
                         <Divider sx={{marginTop:'30px'}}/>
                     </div>
                 ))}
@@ -374,16 +382,18 @@ const PetitionDetails = () => {
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to delete this user?
+                            Are you sure you want to delete this petition?
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleDeleteDialogClose}>Cancel</Button>
-                        <Button variant="outlined" color="error" autoFocus>
+                        <Button variant="outlined" color="error"  onClick={() => {
+                            deletePetition()}} autoFocus>
                             Delete
                         </Button>
                     </DialogActions>
                 </Dialog>
+
 
             </div>
 

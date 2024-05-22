@@ -60,8 +60,6 @@ const CreatePetition = () => {
 
 
 
-
-
     console.log(petitionData)
 
 
