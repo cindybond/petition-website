@@ -15,13 +15,16 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import useStore from "../store";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {Alert, InputAdornment, Snackbar} from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="/">
+        Cindy Bond
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -36,18 +39,32 @@ export default function Login() {
 
   const [errorFlag, setErrorFlag] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
+    const [errorOpen, setErrorOpen] = React.useState(false)
+    const [snackError, setSnackError] = React.useState("")
   const [userData, setUserData] = React.useState<Array<userLogin>>([])
   const navigate = useNavigate()
   const setUser = useStore(state => state.setUser)
+    const [showPassword, setShowPassword] = React.useState(false);
 
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
 
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
   const handleChange = (e:any) => {
     const data = {...userData}
     data[e.target.name] = e.target.value
     setUserData(data)
   }
+    const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setErrorOpen(false);
+    };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     postLogin()
   };
@@ -60,8 +77,8 @@ export default function Login() {
             setUser(response.data)
           navigate('/')
         }, (error) => {
-            setErrorFlag(true)
-            setErrorMessage(error.toString())
+            setSnackError(error.response.statusText.toString())
+            setErrorOpen(true)
         })
   };
 
@@ -96,18 +113,33 @@ export default function Login() {
               autoFocus
               onChange={handleChange}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={handleChange}
-            />
-            <FormControlLabel
+              <TextField
+                  margin="normal"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  id="password"
+                  autoComplete="current-password"
+                  onChange={handleChange}
+                  InputProps={{
+                      endAdornment: (
+                          <InputAdornment position="end">
+                              <IconButton
+                                  aria-label="toggle password visibility"
+                                  onClick={handleClickShowPassword}
+                                  onMouseDown={handleMouseDownPassword}
+                                  edge="end"
+                              >
+                                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                          </InputAdornment>
+                      )
+                  }}
+              />
+
+              <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
@@ -135,6 +167,23 @@ export default function Login() {
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
+        {/*Error Snackbar*/}
+        <Snackbar
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+            }}
+            autoHideDuration={3000}
+            open={errorOpen}
+            onClose={handleErrorClose}
+            key={snackError}
+        >
+            <Alert onClose={handleErrorClose} severity="error" sx={{
+                width:'100%'
+            }}>
+                {snackError}
+            </Alert>
+        </Snackbar>
     </ThemeProvider>
   );
 }

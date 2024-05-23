@@ -26,6 +26,7 @@ import CasualNavbar from "../components/CasualNavbar";
 import useStore from "../store";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from "@mui/material/IconButton";
 const card: CSS.Properties = {
     margin: "20px",
 }
@@ -35,6 +36,9 @@ const PetitionDetails = () => {
     const [similarPetition, setSimilarPetition] = React.useState < Array < Petition >> ([])
     const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
     const [openSupportDialog, setOpenSupportDialog] =React.useState(false)
+    const [openProfileDialog, setOpenProfileDialog] = React.useState(false)
+    const [userProfile, setUserProfile] = React.useState({firstName:'', lastName:'', email:''})
+    const [profileId, setProfileId] = React.useState(0)
     const [snackOpen, setSnackOpen] = React.useState(false)
     const [snackMessage, setSnackMessage] = React.useState("")
     const [currentTier, setCurrentTier] = React.useState(0)
@@ -42,6 +46,8 @@ const PetitionDetails = () => {
     const [petitionDetails, setPetitionDetails ] = React.useState < PetitionFull > ([])
     const [errorFlag, setErrorFlag] = React.useState(false)
     const [errorMessage, setErrorMessage] = React.useState("")
+    const [errorOpen, setErrorOpen] = React.useState(false)
+    const [snackError, setSnackError] = React.useState("")
     const [supportTierDetails, setSupportTierDetails] = React.useState<Array< supportTier >>([])
     const [supporterDetails, setSupporterDetails] = React.useState< Array <supporter >>([])
     const [categories, setCategories] = React.useState < Array < Categories >>([])
@@ -62,6 +68,12 @@ const PetitionDetails = () => {
             return;
         }
         setSnackOpen(false);
+    };
+    const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setErrorOpen(false);
     };
     const handleChange = (e:any) => {
         const data = {...supportData}
@@ -101,6 +113,25 @@ const PetitionDetails = () => {
     const handleSupportPetitionClose = () => {
         setOpenSupportDialog(false)
     }
+
+    const handleProfileDialogOpen =(profileId:number) => {
+        setProfileId(profileId)
+        getUserProfile(profileId)
+        setOpenProfileDialog(true)
+    }
+    const handleProfileDialogClose =() => {
+        setOpenProfileDialog(false)
+    }
+    const getUserProfile = (profileId:number) => {
+        axios.get(`http://localhost:4941/api/v1/users/${profileId}`, {headers: {'X-Authorization': token}})
+            .then((response) => {
+                setUserProfile(response.data)
+            },(error) => {
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
+            })
+    }
+
     const postSupport = (supportTierId:number) => {
         axios.post(url + `/${petitionId}/supporters`,{ ...supportData, supportTierId: supportTierId },{headers: {'X-Authorization': token}})
             .then((response) => {
@@ -109,11 +140,8 @@ const PetitionDetails = () => {
                 getDetails()
                 window.location.reload()
             }, (error) => {
-                setErrorFlag(true)
-                console.log(error.statusText)
-                setErrorMessage(error.toString())
-                setSnackMessage(error.response.statusText.toString())
-                setSnackOpen(true)
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
             })
     }
 
@@ -121,11 +149,10 @@ const PetitionDetails = () => {
         axios.delete(url + `/${petitionId}`, {headers: {'X-Authorization': token}})
             .then ((response) => {
                 handleDeleteDialogClose()
-                console.log('deleted')
                 navigate('/myPetitions')
             }, (error) => {
-                setErrorFlag(true)
-                setErrorMessage(error.toString())
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
             })
     }
     const getDetails = () => {
@@ -137,8 +164,8 @@ const PetitionDetails = () => {
                 setSupportTierDetails(response.data.supportTiers)
                 getSimilarAndSameOwnerPetitions(response.data.categoryId, response.data.ownerId)
             }, (error) => {
-                setErrorFlag(true)
-                setErrorMessage(error.toString())
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
             })
     }
 
@@ -149,8 +176,8 @@ const PetitionDetails = () => {
                 setErrorMessage("")
                 setSupporterDetails(response.data)
             }, (error) => {
-                setErrorFlag(true)
-                setErrorMessage(error.toString())
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
             })
     }
 
@@ -248,9 +275,12 @@ const PetitionDetails = () => {
                 {supporterDetails.map((supporter:supporter) => (
                     <div style={{margin:"12px"}}>
                         <div style={{display: 'flex', alignItems: 'center', marginBottom: '30px', marginLeft: '20px', marginRight:'20px'}}>
-                            <Avatar
-                                src={`http://localhost:4941/api/v1/users/${supporter.supporterId}/image`}
-                                alt="User Image" sx={{marginTop: '10px'}}/>
+                            <IconButton
+                                onClick={() => handleProfileDialogOpen(supporter.supporterId)}>
+                                <Avatar
+                                    src={`http://localhost:4941/api/v1/users/${supporter.supporterId}/image`}
+                                    alt="User Image" sx={{marginTop: '10px'}}/>
+                            </IconButton>
                             <Typography variant="subtitle2" align='left'
                                         sx={{marginLeft: '5px', marginTop: '10px', fontSize: '14px'}}>
                                 {supporter.supporterFirstName} {supporter.supporterLastName}
@@ -317,8 +347,11 @@ const PetitionDetails = () => {
                                             Created By:
                                         </Typography>
                                         <div style={{display: 'flex', alignItems: 'center'}}>
-                                            <Avatar src={`http://localhost:4941/api/v1/users/${row.ownerId}/image`}
+                                            <IconButton
+                                                onClick={(e) => {e.stopPropagation(); handleProfileDialogOpen(row.ownerId)}}>
+                                                <Avatar src={`http://localhost:4941/api/v1/users/${row.ownerId}/image`}
                                                     alt="User Image" sx={{marginTop: '10px'}}/>
+                                            </IconButton>
                                             <Typography variant="caption" align='left'
                                                         sx={{marginLeft: '5px', marginTop: '10px'}}>
                                                 {row.ownerFirstName} {row.ownerLastName} on {row.creationDate}
@@ -338,7 +371,7 @@ const PetitionDetails = () => {
             <div>
                 {/*Main card*/}
                 <Container sx={{display: 'flex', justifyContent: 'space-around'}}>
-                    <Card sx={{width: 1000, marginTop: '40px', marginRight: '40px'}}>
+                    <Card raised={true} sx={{width: 1000, marginTop: '40px', marginRight: '40px'}}>
                         <CardMedia
                             component="img"
                             sx={{width: 800, height: 400, objectFit: 'cover', display: {xs: 'none', sm: 'block'}}}
@@ -352,9 +385,13 @@ const PetitionDetails = () => {
                                 </Typography>
                                 <Typography>
                                     <div style={{display: 'flex', alignItems: 'center', marginBottom: '30px'}}>
-                                        <Avatar
-                                            src={`http://localhost:4941/api/v1/users/${petitionDetails.ownerId}/image`}
-                                            alt="User Image" sx={{marginTop: '10px'}}/>
+                                        <IconButton
+                                            onClick={() => handleProfileDialogOpen(petitionDetails.ownerId)}>
+                                            <Avatar
+                                                src={`http://localhost:4941/api/v1/users/${petitionDetails.ownerId}/image`}
+                                                alt="User Image" sx={{marginTop: '10px'}}/>
+                                        </IconButton>
+
                                         <Typography variant="caption" align='left'
                                                     sx={{marginLeft: '5px', marginTop: '10px'}}>
                                             {petitionDetails.ownerFirstName} {petitionDetails.ownerLastName} on {petitionDetails.creationDate}
@@ -387,15 +424,15 @@ const PetitionDetails = () => {
                     </Card>
 
                     {/*Support Tier Card*/}
-                    <Card sx={{width: 400, marginTop: '40px'}}>
+                    <Card raised={true} sx={{width: 400, marginTop: '40px'}}>
                         {showSupportTier()}
                     </Card>
                 </Container>
                 <Container sx={{display: 'flex', justifyContent: 'space-between'}}>
-                    <Card sx={{width:600, marginTop:'40px', marginRight:'40px', marginBottom:'40px'}}>
+                    <Card raised={true} sx={{width:600, marginTop:'40px', marginRight:'40px', marginBottom:'40px'}}>
                         {showSupporter()}
                     </Card>
-                    <Card sx={{width:600, marginTop:'40px', marginBottom:'40px'}}>
+                    <Card  raised={true} sx={{width:600, marginTop:'40px', marginBottom:'40px'}}>
                         {showSimilarPetitions()}
                     </Card>
                 </Container>
@@ -456,7 +493,35 @@ const PetitionDetails = () => {
                         </Button>
                     </DialogActions>
                 </Dialog>
+                {/*Profile Dialog*/}
+                <Dialog
+                    open={openProfileDialog}
+                    onClose={handleProfileDialogClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description">
+                    <DialogTitle id="aler-dialog-title">
+                        {"Profile"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <Avatar alt="User Image"
+                                src={`http://localhost:4941/api/v1/users/${profileId}/image`}
+                                sx={{ width: 200, height: 200, margin:'20px' }}></Avatar>
+                        <Typography>First Name: {userProfile.firstName}</Typography>
+                        <Typography>Last Name: {userProfile.lastName}</Typography>
+                        {userProfile.email?
+                            <Typography>
+                                Email: {userProfile.email}
+                            </Typography> :
+                            <Typography>
+                                Email: You cannot view this info
+                            </Typography>}
 
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleProfileDialogClose}>Close</Button>
+                    </DialogActions>
+                </Dialog>
+                {/*Success Snackbar*/}
                 <Snackbar
                     anchorOrigin={{
                         vertical: 'top',
@@ -467,10 +532,27 @@ const PetitionDetails = () => {
                     onClose={handleSnackClose}
                     key={snackMessage}
                 >
-                    <Alert onClose={handleSnackClose} severity="error" sx={{
+                    <Alert onClose={handleSnackClose} severity="success" sx={{
                         width:'100%'
                     }}>
                         {snackMessage}
+                    </Alert>
+                </Snackbar>
+                {/*Error Snackbar*/}
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    autoHideDuration={3000}
+                    open={errorOpen}
+                    onClose={handleErrorClose}
+                    key={snackError}
+                >
+                    <Alert onClose={handleErrorClose} severity="error" sx={{
+                        width:'100%'
+                    }}>
+                        {snackError}
                     </Alert>
                 </Snackbar>
 

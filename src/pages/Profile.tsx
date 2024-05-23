@@ -3,54 +3,116 @@ import React from "react";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
-import {Button, Card, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material";
+import {
+    Alert,
+    Button,
+    Card,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Snackbar,
+    TextField
+} from "@mui/material";
 import useStore from "../store";
-import {useNavigate} from "react-router-dom";
+import {json, useNavigate} from "react-router-dom";
 import axios from "axios";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 
 const Profile = () =>{
     const user = useStore(state => state.user)
     const userId = user.userId
     const [openEditDialog, setOpenEditDialog] = React.useState(false)
-    const [userData, setUserData] = React.useState< Array< userRegister>>([])
     const [selectedImage, setSelectedImage] = React.useState<File |null>(null);
+    const [snackOpen, setSnackOpen] = React.useState(false)
+    const [snackMessage, setSnackMessage] = React.useState("")
+    const [errorOpen, setErrorOpen] = React.useState(false)
+    const [snackError, setSnackError] = React.useState("")
+    const [errorFlag, setErrorFlag] = React.useState(false)
+    const [errorMessage, setErrorMessage] = React.useState("")
     const [userDetails, setUserDetails] = React.useState<userReturnWithEmail>({firstName:'', lastName:'', email:''})
     const url = 'http://localhost:4941/api/v1/users/'
     const navigate = useNavigate()
     React.useEffect(() => {
         getDetails()
     }, [])
-    console.log(user)
+
+    const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackOpen(false);
+    };
+
+    const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setErrorOpen(false);
+    };
     const handleImageChange = (e:any) => {
         setSelectedImage(e.target.files[0])
     }
     const handleChange = (e:any) => {
-        const data = {...userData}
-        data[e.target.name] = e.target.value
-        setUserData(data)
+        setUserDetails({
+            ...userDetails,
+            [e.target.name]: e.target.value
+        });
     }
+
     const handleEditDialogOpen =()=> {
         setOpenEditDialog(true)
     }
     const handleEditDialogClose =()=> {
         setOpenEditDialog(false)
+        window.location.reload()
+    }
+
+    const handleEditSubmit = () => {
+        uploadImage()
+        patchUser()
+    }
+    const patchUser = () => {
+        axios.patch(url + userId, userDetails,{headers: {'X-Authorization': user.token}})
+            .then((response) => {
+                setSnackMessage("Details Successfully Edited")
+                setSnackOpen(true)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }, (error) => {
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
+            })
     }
     const getDetails = () => {
+        console.log(user.token)
         axios.get(url + userId, {headers: {'X-Authorization': user.token}})
             .then((response) => {
                 setUserDetails(response.data)
-                console.log(response.data)
-        })
-            .catch((error) => {
-                console.error("Logout failed:", error);
-            });
+        }, (error) => {
+                setErrorFlag(true)
+                setErrorMessage(error.toString())
+            })
     }
-
-
-
+    const uploadImage = () => {
+        if(selectedImage!== null) {
+            axios.put(url + `${userId}/image`, selectedImage ,{headers: {'Content-Type':selectedImage?.type, 'X-Authorization': user.token}})
+                .then((response) => {
+                    setSnackMessage("Details Successfully Edited")
+                    setSnackOpen(true)
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }, (error) => {
+                    setSnackError(error.response.statusText.toString())
+                    setErrorOpen(true)
+                })
+        }}
     const showDetails = () => {
         return(
             <Container sx={{display: 'flex', justifyContent: 'space-around'}}>
@@ -66,7 +128,7 @@ const Profile = () =>{
                             <Typography variant="subtitle1">Email: {userDetails.email}</Typography>
                         </div>
                     <div>
-                        {/*Support Dialog*/}
+                        {/*Edit Profile Dialog*/}
                         <Dialog
                             open={openEditDialog}
                             onClose={handleEditDialogClose}
@@ -75,6 +137,18 @@ const Profile = () =>{
                             <DialogTitle id="aler-dialog-title">
                                 {"Edit Details"}
                             </DialogTitle>
+                            <IconButton
+                                aria-label="close"
+                                onClick={handleEditDialogClose}
+                                sx={{
+                                    position: 'absolute',
+                                    right: 8,
+                                    top: 8,
+                                    color: (theme) => theme.palette.grey[500],
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>
                             <DialogContent>
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={7}>
@@ -84,6 +158,7 @@ const Profile = () =>{
                                             id="firstName"
                                             label="First Name"
                                             name="firstName"
+                                            value={userDetails.firstName}
                                             onChange={handleChange}
                                         />
                                     </Grid>
@@ -94,6 +169,7 @@ const Profile = () =>{
                                             id="lastName"
                                             label="Last Name"
                                             name="lastName"
+                                            value={userDetails.lastName}
                                             onChange={handleChange}
                                         />
                                     </Grid>
@@ -104,6 +180,7 @@ const Profile = () =>{
                                             id="email"
                                             label="Email Address"
                                             name="email"
+                                            value={userDetails.email}
                                             autoComplete="email"
                                             onChange={handleChange}
                                         />
@@ -127,7 +204,7 @@ const Profile = () =>{
                             </DialogContent>
                             <DialogActions>
                                 <Button onClick={handleEditDialogClose}>Cancel</Button>
-                                <Button variant="contained" color="primary" autoFocus>
+                                <Button variant="contained" color="primary" type="submit" onClick={handleEditSubmit} autoFocus>
                                     SAVE
                                 </Button>
                             </DialogActions>
@@ -148,6 +225,39 @@ const Profile = () =>{
                         startIcon={<ModeEditOutlineIcon/>}>EDIT PROFILE</Button>
             </div>
                 {showDetails() }
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                autoHideDuration={3000}
+                open={snackOpen}
+                onClose={handleSnackClose}
+                key={snackMessage}
+            >
+                <Alert onClose={handleSnackClose} severity="success" sx={{
+                    width:'100%'
+                }}>
+                    {snackMessage}
+                </Alert>
+            </Snackbar>
+            {/*Error Snackbar*/}
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                autoHideDuration={3000}
+                open={errorOpen}
+                onClose={handleErrorClose}
+                key={snackError}
+            >
+                <Alert onClose={handleErrorClose} severity="error" sx={{
+                    width:'100%'
+                }}>
+                    {snackError}
+                </Alert>
+            </Snackbar>
         </div>
     )
 }

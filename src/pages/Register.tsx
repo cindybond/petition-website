@@ -16,13 +16,16 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
 import useStore from "../store";
 import {useState} from "react";
+import {Alert, InputAdornment, Snackbar} from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
 
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="/">
+        Cindy Bond
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -36,10 +39,19 @@ const defaultTheme = createTheme();
 export default function Register() {
   const [errorFlag, setErrorFlag] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
+    const [errorOpen, setErrorOpen] = React.useState(false)
+    const [snackError, setSnackError] = React.useState("")
   const [userData, setUserData] = React.useState< Array< userRegister>>([])
   const [selectedImage, setSelectedImage] = React.useState<File |null>(null);
   const setUser = useStore(state => state.setUser)
   const url = 'http://localhost:4941/api/v1'
+    const [showPassword, setShowPassword] = React.useState(false);
+
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
 
   const navigate = useNavigate()
   const handleChange = (e:any) => {
@@ -52,8 +64,15 @@ export default function Register() {
     event.preventDefault();
     postRegister()
   };
+    const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setErrorOpen(false);
+    };
 
-  const handleImageChange = (e:any) => {
+
+    const handleImageChange = (e:any) => {
       setSelectedImage(e.target.files[0])
   }
 
@@ -65,8 +84,8 @@ export default function Register() {
           postLogin()
           setUser(response.data)
         }, (error) => {
-          setErrorFlag(true)
-          setErrorMessage(error.toString())
+            setSnackError(error.response.statusText.toString())
+            setErrorOpen(true)
         })
   }
 
@@ -82,8 +101,8 @@ export default function Register() {
             uploadImage(userId, token)
           navigate('/')
         }, (error) => {
-          setErrorFlag(true)
-          setErrorMessage(error.toString())
+            setSnackError(error.response.statusText.toString())
+            setErrorOpen(true)
         })
   };
   const uploadImage = (userId:number, token:string) => {
@@ -92,11 +111,10 @@ export default function Register() {
               .then((response) => {
                   console.log('image uploaded')
               }, (error) => {
-                  setErrorFlag(true)
-                  setErrorMessage(error.toString())
+                  setSnackError(error.response.statusText.toString())
+                  setErrorOpen(true)
               })
-      }
-      }
+      }}
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -153,16 +171,31 @@ export default function Register() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="new-password"
-                    onChange={handleChange}
-                />
+                  <TextField
+                      margin="normal"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      id="password"
+                      autoComplete="current-password"
+                      onChange={handleChange}
+                      InputProps={{
+                          endAdornment: (
+                              <InputAdornment position="end">
+                                  <IconButton
+                                      aria-label="toggle password visibility"
+                                      onClick={handleClickShowPassword}
+                                      onMouseDown={handleMouseDownPassword}
+                                      edge="end"
+                                  >
+                                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                                  </IconButton>
+                              </InputAdornment>
+                          )
+                      }}
+                  />
               </Grid>
               <div style={{alignItems:'center', margin:'40px'}}>
                 {selectedImage && (
@@ -182,12 +215,6 @@ export default function Register() {
                          name="filename" accept="image/*" onChange={handleImageChange}
                   />
               </div>
-              <Grid item xs={12}>
-                <FormControlLabel
-                    control={<Checkbox value="allowExtraEmails" color="primary"/>}
-                    label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid>
             </Grid>
             <Button
                 type="submit"
@@ -208,6 +235,23 @@ export default function Register() {
         </Box>
         <Copyright sx={{ mt: 5 }} />
       </Container>
+        {/*Error Snackbar*/}
+        <Snackbar
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+            }}
+            autoHideDuration={3000}
+            open={errorOpen}
+            onClose={handleErrorClose}
+            key={snackError}
+        >
+            <Alert onClose={handleErrorClose} severity="error" sx={{
+                width:'100%'
+            }}>
+                {snackError}
+            </Alert>
+        </Snackbar>
     </ThemeProvider>
   );
 }

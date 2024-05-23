@@ -62,7 +62,8 @@ const Petitions = () => {
     const user = useStore()
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
-    const ownerId = searchParams.get("ownerId");
+    const ownerId = searchParams.get("ownerId")
+
 
     React.useEffect(() => {
         getPetition()
@@ -90,7 +91,8 @@ const Petitions = () => {
                 setErrorMessage(error.toString())
             })
     }
-
+    console.log('Petition',petition.length)
+    console.log('View Petition',viewPetition.length)
     const getCategories = () => {
         axios.get(url + '/categories')
             .then((response) => {
@@ -110,6 +112,7 @@ const Petitions = () => {
 
     const filterPetition = (startIndex:number) => {
         let query = `?startIndex=${startIndex}&count=${pageSize}`
+
 
         if (searchKey) {
             query += '&q=' + searchKey
@@ -139,6 +142,7 @@ const Petitions = () => {
             query += '&ownerId=' + ownerId
         }
 
+
         axios.get(url + query)
             .then((response) => {
                 setErrorFlag(false)
@@ -158,8 +162,6 @@ const Petitions = () => {
     const handlePageChange = (e: React.ChangeEvent<unknown>, page:number) => {
         setCurrentPage(page)
         const index = (page - 1) * pageSize
-        console.log('check')
-        console.log(index)
         setStartIndex(index);
         filterPetition(index)
     }

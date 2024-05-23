@@ -18,6 +18,8 @@ const EditPetition = () => {
     let { petitionId} = useParams()
     const [snackOpen, setSnackOpen] = React.useState(false)
     const [snackMessage, setSnackMessage] = React.useState("")
+    const [errorOpen, setErrorOpen] = React.useState(false)
+    const [snackError, setSnackError] = React.useState("")
     const [petitionImage, setPetitionImage] = React.useState<File|null>(null)
     const [petitionFull, setPetitionFull] = React.useState<PetitionFull>([])
     const [errorFlag, setErrorFlag] = React.useState(false)
@@ -61,6 +63,12 @@ const EditPetition = () => {
             return;
             }
         setSnackOpen(false);
+    };
+    const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setErrorOpen(false);
     };
 
     const handleImageChange = (e:any) => {
@@ -115,12 +123,14 @@ const EditPetition = () => {
                     console.log('going to put')
                     putSupportTier3()
                 }
-
                 setSnackMessage("Petition Successfully Edited")
                 setSnackOpen(true)
+                setTimeout(() => {
+                    navigate('/myPetitions')
+                },1000)
             }, (error) => {
-                setErrorFlag(true)
-                setErrorMessage(error.toString())
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
             })
     }
 
@@ -318,7 +328,7 @@ const EditPetition = () => {
                                             label="Cost"
                                             id="support-tiers-cost2"
                                             name='supportTiers1cost'
-                                            value={petitionData.supportTiers[1] !== undefined ? petitionData.supportTiers[1].cost : 0}
+                                            // value={petitionData.supportTiers[1] !== undefined ? petitionData.supportTiers[1].cost : 0}
                                             onChange={handleChange}
                                         />
                                     </Grid>
@@ -390,6 +400,23 @@ const EditPetition = () => {
                     width:'100%'
                 }}>
                     {snackMessage}
+                </Alert>
+            </Snackbar>
+            {/*Error Snackbar*/}
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                autoHideDuration={3000}
+                open={errorOpen}
+                onClose={handleErrorClose}
+                key={snackError}
+            >
+                <Alert onClose={handleErrorClose} severity="error" sx={{
+                    width:'100%'
+                }}>
+                    {snackError}
                 </Alert>
             </Snackbar>
         </div>

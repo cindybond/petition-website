@@ -1,6 +1,6 @@
 import React from "react";
 import Container from "@mui/material/Container";
-import {Button, Card, CardContent, Divider, TextField} from "@mui/material";
+import {Alert, Button, Card, CardContent, Divider, Snackbar, TextField} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -17,6 +17,10 @@ const CreatePetition = () => {
     const [petitionImage, setPetitionImage] = React.useState<File|null>(null)
     const [errorFlag, setErrorFlag] = React.useState(false)
     const [errorMessage, setErrorMessage] = React.useState("")
+    const [errorOpen, setErrorOpen] = React.useState(false)
+    const [snackError, setSnackError] = React.useState("")
+    const [snackOpen, setSnackOpen] = React.useState(false)
+    const [snackMessage, setSnackMessage] = React.useState("")
     const [petitionData, setPetitionData] = React.useState<createPetition>({
         title: "",
         description: "",
@@ -33,6 +37,18 @@ const CreatePetition = () => {
     const user = useStore(state => state.user)
     const token = user.token
 
+    const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackOpen(false);
+    };
+    const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setErrorOpen(false);
+    };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
@@ -77,15 +93,16 @@ const CreatePetition = () => {
             .then((response) => {
                 setErrorFlag(false)
                 setErrorMessage("")
-                console.log('Created')
-                console.log(response.data)
                 const petitionId = response.data.petitionId
-                console.log(petitionId)
                 uploadImage(petitionId, token)
-                navigate('/')
+                setSnackMessage('Petition Successfully created')
+                setSnackOpen(true)
+                setTimeout(() => {
+                    navigate('/')
+                }, 1000);
             }, (error) => {
-                setErrorFlag(true)
-                setErrorMessage(error.toString())
+                setSnackError(error.response.statusText.toString())
+                setErrorOpen(true)
             })
     }
 
@@ -94,7 +111,7 @@ const CreatePetition = () => {
         if(petitionImage!== null) {
             axios.put(url + `/${petitionId}/image`, petitionImage ,{headers: {'Content-Type':petitionImage?.type, 'X-Authorization': token}})
                 .then((response) => {
-                    console.log('image uploaded')
+
                 }, (error) => {
                     setErrorFlag(true)
                     setErrorMessage(error.toString())
@@ -278,6 +295,41 @@ const CreatePetition = () => {
 
                 </Box>
             </Container>
+            {/*Success Snackbar*/}
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                autoHideDuration={3000}
+                open={snackOpen}
+                onClose={handleSnackClose}
+                key={snackMessage}
+            >
+                <Alert onClose={handleSnackClose} severity="success" sx={{
+                    width:'100%'
+                }}>
+                    {snackMessage}
+                </Alert>
+            </Snackbar>
+
+            {/*Error Snackbar*/}
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                autoHideDuration={3000}
+                open={errorOpen}
+                onClose={handleErrorClose}
+                key={snackError}
+            >
+                <Alert onClose={handleErrorClose} severity="error" sx={{
+                    width:'100%'
+                }}>
+                    {snackError}
+                </Alert>
+            </Snackbar>
         </div>
     );
 }
