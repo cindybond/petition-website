@@ -15,7 +15,6 @@ import {
     TextField
 } from "@mui/material";
 import useStore from "../store";
-import {json, useNavigate} from "react-router-dom";
 import axios from "axios";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import Grid from "@mui/material/Grid";
@@ -36,7 +35,7 @@ const Profile = () =>{
     const [errorMessage, setErrorMessage] = React.useState("")
     const [userDetails, setUserDetails] = React.useState<userReturnWithEmail>({firstName:'', lastName:'', email:''})
     const url = 'http://localhost:4941/api/v1/users/'
-    const navigate = useNavigate()
+
     React.useEffect(() => {
         getDetails()
     }, [])
@@ -214,52 +213,62 @@ const Profile = () =>{
             </Container>
         )
     }
-
-    return (
-        <div>
+    if (errorFlag) {
+        return (
             <div>
-                <UserNavbar />
+                <h1>Error</h1>
+                <div style={{color: "red"}}>
+                    {errorMessage}
+                </div>
             </div>
-            <div style={{display:'flex', justifyContent:'center', margin:'20px'}}>
-                <Button color= "secondary" variant="outlined" size='large' onClick={handleEditDialogOpen}
-                        startIcon={<ModeEditOutlineIcon/>}>EDIT PROFILE</Button>
-            </div>
-                {showDetails() }
-            <Snackbar
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
-                autoHideDuration={3000}
-                open={snackOpen}
-                onClose={handleSnackClose}
-                key={snackMessage}
-            >
-                <Alert onClose={handleSnackClose} severity="success" sx={{
-                    width:'100%'
-                }}>
-                    {snackMessage}
-                </Alert>
-            </Snackbar>
-            {/*Error Snackbar*/}
-            <Snackbar
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
-                autoHideDuration={3000}
-                open={errorOpen}
-                onClose={handleErrorClose}
-                key={snackError}
-            >
-                <Alert onClose={handleErrorClose} severity="error" sx={{
-                    width:'100%'
-                }}>
-                    {snackError}
-                </Alert>
-            </Snackbar>
-        </div>
-    )
-}
+        )
+    } else {
 
-export default Profile
+        return (
+            <div>
+                <div>
+                    <UserNavbar />
+                </div>
+                <div style={{display:'flex', justifyContent:'center', margin:'20px'}}>
+                    <Button color= "secondary" variant="outlined" size='large' onClick={handleEditDialogOpen}
+                            startIcon={<ModeEditOutlineIcon/>}>EDIT PROFILE</Button>
+                </div>
+                    {showDetails() }
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    autoHideDuration={3000}
+                    open={snackOpen}
+                    onClose={handleSnackClose}
+                    key={snackMessage}
+                >
+                    <Alert onClose={handleSnackClose} severity="success" sx={{
+                        width:'100%'
+                    }}>
+                        {snackMessage}
+                    </Alert>
+                </Snackbar>
+                {/*Error Snackbar*/}
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    autoHideDuration={3000}
+                    open={errorOpen}
+                    onClose={handleErrorClose}
+                    key={snackError}
+                >
+                    <Alert onClose={handleErrorClose} severity="error" sx={{
+                        width:'100%'
+                    }}>
+                        {snackError}
+                    </Alert>
+                </Snackbar>
+            </div>
+        )
+}}
+
+export default Profile;

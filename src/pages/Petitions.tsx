@@ -1,41 +1,23 @@
 import axios from 'axios';
 import React from "react";
 import {
-    Button,
+    Alert, AlertTitle,
     Card,
     CardActionArea,
     CardContent,
     CardMedia,
-    Checkbox,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    OutlinedInput,
     Pagination,
     Paper,
-    Select,
     SelectChangeEvent,
     Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TextField
 } from "@mui/material";
 import CSS from 'csstype';
 
-import {Category} from "@mui/icons-material";
-import {Menubar} from "primereact/menubar";
+
 import Typography from "@mui/material/Typography";
-import Home from "./Home";
 import { useNavigate, useLocation } from 'react-router-dom'
 import SearchNavbar from "../components/SearchNavbar";
-import Toolbar from "@mui/material/Toolbar";
-import Link from "@mui/material/Link";
 import Avatar from "@mui/material/Avatar";
-import PetitionDetails from "./PetitionDetails";
 import CasualNavbar from "../components/CasualNavbar";
 import useStore from "../store";
 import UserNavbar from "../components/UserNavbar";
@@ -51,12 +33,13 @@ const Petitions = () => {
     const [categories, setCategories] = React.useState < Array < Categories >>([])
     const [searchKey, setSearchKey] = React.useState("")
     const [costSearchKey, setCostSearchKey] = React.useState("")
+    const [numPage, setNumPage] = React.useState(0)
     const [viewPetition, setViewPetition] = React.useState< Array < Petition >>([])
     const [filterCategory, setFilterCategory] = React.useState<number[]>([])
     const [sortBy, setSortBy] = React.useState("")
-    const [pageSize, setPageSize] = React.useState(10)
     const [currentPage, setCurrentPage] = React.useState(1)
     const [startIndex, setStartIndex] = React.useState(0)
+    const pageSize = 10
     const url = 'http://localhost:4941/api/v1/petitions'
     const navigate = useNavigate()
     const user = useStore()
@@ -85,14 +68,14 @@ const Petitions = () => {
                 setErrorFlag(false)
                 setErrorMessage("")
                 setPetition(response.data.petitions)
+                console.log(petition)
                 setViewPetition(response.data.petitions)
             }, (error) => {
                 setErrorFlag(true)
                 setErrorMessage(error.toString())
             })
     }
-    console.log('Petition',petition.length)
-    console.log('View Petition',viewPetition.length)
+
     const getCategories = () => {
         axios.get(url + '/categories')
             .then((response) => {
@@ -148,6 +131,7 @@ const Petitions = () => {
                 setErrorFlag(false)
                 setErrorMessage("")
                 setViewPetition(response.data.petitions)
+                setNumPage(response.data.count)
             }, (error) => {
                 setErrorFlag(true)
                 setErrorMessage(error.toString())
@@ -214,21 +198,13 @@ const Petitions = () => {
             </div>
         );
     }
-
-
-    if (errorFlag) {
         return (
             <div>
-                <h1>Users</h1>
-                <div style={{color: "red"}}>
-                    {errorMessage}
-                </div>
-            </div>
-        )
-    } else {
-
-        return (
-            <div>
+                {errorFlag &&
+                    <Alert severity="error">
+                        <AlertTitle>Error</AlertTitle>
+                        {errorMessage}
+                    </Alert>}
                 <div>
                     {user.user.userId !== -1 ? <UserNavbar/> : <CasualNavbar handleRegister={handleRegister} handleSignIn={handleSignIn}/>}
                 </div>
@@ -243,7 +219,7 @@ const Petitions = () => {
                 </div>
                 <div style={{display:'flex' ,alignItems:'center', justifyContent:'center', marginTop:20, marginBottom:20}}>
                     <Stack spacing={2}>
-                        <Pagination count={Math.ceil(petition.length/pageSize)} page={currentPage} color="secondary"
+                        <Pagination count={Math.ceil(numPage/pageSize)} page={currentPage} color="secondary"
                                     onChange={handlePageChange} showFirstButton showLastButton/>
                     </Stack>
                 </div>
@@ -251,6 +227,6 @@ const Petitions = () => {
 
         )
     }
-}
+
 
 export default Petitions;

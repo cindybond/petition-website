@@ -2,16 +2,12 @@ import axios from "axios";
 import React from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {
-    Alert,
+    Alert, AlertTitle,
     Button,
     Card,
     CardActionArea,
     CardContent,
-    CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Icon,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
+    CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider,
     Paper, Snackbar, TextField
 } from "@mui/material";
 import CSS from "csstype";
@@ -20,7 +16,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import Container from "@mui/material/Container";
-import petitions from "./Petitions";
 import UserNavbar from "../components/UserNavbar";
 import CasualNavbar from "../components/CasualNavbar";
 import useStore from "../store";
@@ -138,7 +133,11 @@ const PetitionDetails = () => {
                 console.log("Supported", supportTierId)
                 handleSupportPetitionClose()
                 getDetails()
-                window.location.reload()
+                setSnackMessage('Thank you for your support')
+                setSnackOpen(true)
+                setTimeout(() => {
+                    window.location.reload()
+                },1000)
             }, (error) => {
                 setSnackError(error.response.statusText.toString())
                 setErrorOpen(true)
@@ -383,6 +382,9 @@ const PetitionDetails = () => {
                                 <Typography variant='button' fontSize='40px'>
                                     {petitionDetails.title}
                                 </Typography>
+                                <Typography variant="subtitle2" align='left' sx={{fontSize:'16px' ,marginBottom:'20px'}}>
+                                    Category: {getCategoryName(petitionDetails.categoryId)}
+                                </Typography>
                                 <Typography>
                                     <div style={{display: 'flex', alignItems: 'center', marginBottom: '30px'}}>
                                         <IconButton
@@ -442,6 +444,11 @@ const PetitionDetails = () => {
 
     return (
         <div>
+            {errorFlag &&
+                <Alert severity="error">
+                    <AlertTitle>Error</AlertTitle>
+                    {errorMessage}
+                </Alert>}
             <div>
                 {user.user.userId !== -1 ? <UserNavbar/> : <CasualNavbar handleRegister={handleRegister} handleSignIn={handleSignIn}/>}
             </div>

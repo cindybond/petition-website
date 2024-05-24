@@ -3,7 +3,7 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import {Alert, Button, Card, CardMedia, Paper, Snackbar, TextField} from "@mui/material";
+import {Alert, AlertTitle, Button, Paper, Snackbar, TextField} from "@mui/material";
 import React from "react";
 import axios from "axios";
 import {useNavigate, useParams} from "react-router-dom";
@@ -377,10 +377,13 @@ const EditPetition = () => {
             </Container>
         )
     }
-
-
     return (
         <div>
+            {errorFlag &&
+                <Alert severity="error">
+                    <AlertTitle>Error</AlertTitle>
+                    {errorMessage}
+                </Alert>}
             <div>
                 <UserNavbar/>
             </div>
@@ -422,5 +425,7 @@ const EditPetition = () => {
         </div>
     );
 }
+
+
 
 export default EditPetition;

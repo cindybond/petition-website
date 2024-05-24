@@ -1,6 +1,4 @@
 import Toolbar from "@mui/material/Toolbar";
-import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
 import {Button} from "@mui/material";
 import React from "react";
 import {useNavigate} from "react-router-dom";

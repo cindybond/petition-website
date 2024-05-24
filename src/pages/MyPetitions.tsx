@@ -1,14 +1,13 @@
 import axios from "axios";
 import React from "react";
 import {useNavigate} from "react-router-dom";
-import {Button, Card, CardActionArea, CardContent, CardMedia, Divider, Paper} from "@mui/material";
+import {Alert, AlertTitle, Card, CardActionArea, CardContent, CardMedia, Divider, Paper} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import CSS from "csstype";
 import useStore from "../store";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import UserNavbar from "../components/UserNavbar";
-import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 const card: CSS.Properties = {
     margin: "20px",
 }
@@ -41,6 +40,7 @@ const MyPetitions = () => {
                 setErrorFlag(false)
                 setErrorMessage("")
                 setPetition(response.data.petitions)
+                console.log(petition)
                 setViewPetition(response.data.petitions)
             }, (error) => {
                 setErrorFlag(true)
@@ -180,10 +180,13 @@ const MyPetitions = () => {
             )
         }
     }
-
-
     return (
         <div>
+            {errorFlag &&
+                <Alert severity="error">
+                    <AlertTitle>Error</AlertTitle>
+                    {errorMessage}
+                </Alert>}
             <div>
                 <UserNavbar/>
             </div>

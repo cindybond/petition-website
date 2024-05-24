@@ -82,108 +82,115 @@ export default function Login() {
         })
   };
 
+    if (errorFlag) {
+        return (
+            <div>
+                <h1>Error</h1>
+                <div style={{color: "red"}}>
+                    {errorMessage}
+                </div>
+            </div>
+        )
+    } else {
 
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              onChange={handleChange}
-            />
-              <TextField
+      return (
+        <ThemeProvider theme={defaultTheme}>
+          <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <Box
+              sx={{
+                marginTop: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography component="h1" variant="h5">
+                Sign in
+              </Typography>
+              <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                <TextField
                   margin="normal"
-                  type={showPassword ? 'text' : 'password'}
                   required
                   fullWidth
-                  name="password"
-                  label="Password"
-                  id="password"
-                  autoComplete="current-password"
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
                   onChange={handleChange}
-                  InputProps={{
-                      endAdornment: (
-                          <InputAdornment position="end">
-                              <IconButton
-                                  aria-label="toggle password visibility"
-                                  onClick={handleClickShowPassword}
-                                  onMouseDown={handleMouseDownPassword}
-                                  edge="end"
-                              >
-                                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                          </InputAdornment>
-                      )
-                  }}
-              />
+                />
+                  <TextField
+                      margin="normal"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      id="password"
+                      autoComplete="current-password"
+                      onChange={handleChange}
+                      InputProps={{
+                          endAdornment: (
+                              <InputAdornment position="end">
+                                  <IconButton
+                                      aria-label="toggle password visibility"
+                                      onClick={handleClickShowPassword}
+                                      onMouseDown={handleMouseDownPassword}
+                                      edge="end"
+                                  >
+                                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                                  </IconButton>
+                              </InputAdornment>
+                          )
+                      }}
+                  />
 
-              <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+                  <FormControlLabel
+                  control={<Checkbox value="remember" color="primary" />}
+                  label="Remember me"
+                />
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                  Sign In
+                </Button>
+                <Grid container>
+                  <Grid item xs>
+                  </Grid>
+                  <Grid item>
+                    <Link href="register" variant="body2" >
+                      {"Don't have an account? Sign Up"}
+                    </Link>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Box>
+            <Copyright sx={{ mt: 8, mb: 4 }} />
+          </Container>
+            {/*Error Snackbar*/}
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                autoHideDuration={3000}
+                open={errorOpen}
+                onClose={handleErrorClose}
+                key={snackError}
             >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="register" variant="body2" >
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
-      </Container>
-        {/*Error Snackbar*/}
-        <Snackbar
-            anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
-            }}
-            autoHideDuration={3000}
-            open={errorOpen}
-            onClose={handleErrorClose}
-            key={snackError}
-        >
-            <Alert onClose={handleErrorClose} severity="error" sx={{
-                width:'100%'
-            }}>
-                {snackError}
-            </Alert>
-        </Snackbar>
-    </ThemeProvider>
-  );
-}
+                <Alert onClose={handleErrorClose} severity="error" sx={{
+                    width:'100%'
+                }}>
+                    {snackError}
+                </Alert>
+            </Snackbar>
+        </ThemeProvider>
+      );
+    }}

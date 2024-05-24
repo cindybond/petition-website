@@ -1,31 +1,23 @@
 import Toolbar from "@mui/material/Toolbar";
-import {Button, Dialog, DialogActions, DialogTitle, Menu, MenuItem, styled, Tooltip} from "@mui/material";
+import {
+    Button,
+    Dialog,
+    Menu,
+    MenuItem,
+    styled,
+    Tooltip
+} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import React from "react";
-import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import CloseIcon from '@mui/icons-material/Close';
 import {useNavigate} from "react-router-dom";
 import useStore from "../store";
-import axios from "axios";
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-    '& .MuiDialogContent-root': {
-        padding: theme.spacing(2),
-    },
-    '& .MuiDialogActions-root': {
-        padding: theme.spacing(1),
-    },
-}));
+
 const UserNavbar = () => {
-    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const [openDialog, setOpenDialog] = React.useState(false)
-    const [ ownerId, setOwnerId]=React.useState(-1)
     const removeUser = useStore(state => state.removeUser)
     const user = useStore(state => state.user)
-    const url = 'http://localhost:4941/api/v1'
     const navigate = useNavigate()
     const userId = user.userId
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -53,6 +45,7 @@ const UserNavbar = () => {
     const handleCreatePetition = () => {
         navigate('/create')
     }
+
     return (
         <div>
             <React.Fragment>
