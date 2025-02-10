@@ -6,6 +6,7 @@ import {
     CardActionArea,
     CardContent,
     CardMedia,
+    Container,
     Pagination,
     Paper,
     SelectChangeEvent,
@@ -52,6 +53,7 @@ const Petitions = () => {
         getPetition()
         getCategories()
         filterPetition(startIndex)
+        //eslint-disable-next-line
     }, [])
 
 
@@ -89,7 +91,8 @@ const Petitions = () => {
     }
 
     const getCategoryName = (categoryId:number) => {
-        const category = categories.find(cat => cat.categoryId === categoryId);
+        console.log(categories)
+        const category = categories.find(cat => cat.id === categoryId);
         return category ? category.name : '';
     }
 
@@ -160,14 +163,14 @@ const Petitions = () => {
                 {viewPetition.map((row: Petition) => (
                     <Paper elevation={5} style={card} key={row.petitionId}>
                         <CardActionArea component="a" href="#" onClick={() => handlePetitionClicked(row.petitionId)}>
-                            <Card sx={{ maxWidth:500 }}>
+                            <Card sx={{ maxWidth:500, maxHeight:800}}>
                                 <CardMedia
                                     component="img"
-                                    sx={{ width: 500, maxHeight:200, display: { xs: 'none', sm: 'block' } }}
+                                    sx={{ width: 500, maxHeight:250, display: { xs: 'none', sm: 'block' } }}
                                     image={`http://localhost:4941/api/v1/petitions/${row.petitionId}/image`}
                                     alt="Petition Image"
                                 />
-                                <CardContent sx={{ flex: 1 }}>
+                                <CardContent sx={{ flex: 1}}>
                                     <Typography component="h2" align='left' variant="h5" color='primary'>
                                         {row.title}
                                     </Typography>
@@ -177,9 +180,7 @@ const Petitions = () => {
                                     <Typography variant="overline" noWrap={false} align='left' color="#e65100" sx={{fontSize:'18px'}}>
                                         Supporting Cost: ${row.supportingCost}
                                     </Typography>
-                                    <Typography variant="subtitle1" align='left' sx={{fontSize:'12px', justifyContent: 'flex-end', marginTop:'20px'}}>
-                                        Created By:
-                                    </Typography>
+                                    
                                     <div style={{display: 'flex', alignItems: 'center'}}>
                                         <Avatar src={`http://localhost:4941/api/v1/users/${row.ownerId}/image`}
                                                 alt="User Image" sx={{marginTop:'10px'}}/>
@@ -200,6 +201,7 @@ const Petitions = () => {
     }
         return (
             <div>
+                <Container maxWidth="lg" sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
                 {errorFlag &&
                     <Alert severity="error">
                         <AlertTitle>Error</AlertTitle>
@@ -223,6 +225,7 @@ const Petitions = () => {
                                     onChange={handlePageChange} showFirstButton showLastButton/>
                     </Stack>
                 </div>
+                </Container>
             </div>
 
         )

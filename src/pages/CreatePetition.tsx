@@ -115,14 +115,14 @@ const CreatePetition = () => {
         }
     }
         return (
-            <div>
+            <Container maxWidth="lg">
                 {errorFlag &&
                     <Alert severity="error">
                         <AlertTitle>Error</AlertTitle>
                         {errorMessage}
                     </Alert>}
                 <div>
-                    <UserNavbar/>
+                    <UserNavbar />
                 </div>
                 <Container sx={{display: 'flex', justifyContent: 'space-around'}}>
                     <Box
@@ -331,7 +331,7 @@ const CreatePetition = () => {
                         {snackError}
                     </Alert>
                 </Snackbar>
-            </div>
+            </Container>
         );
     }
 

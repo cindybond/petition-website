@@ -19,10 +19,9 @@ interface SearchNavbarProps {
 const SearchNavbar = (props:SearchNavbarProps) => {
     const{startIndex, searchKey,filterCategory,categories,
         setSearchKey,setFilterCategory,
-        filteredPetition, costSearchKey, setCostSearchKey,sortBy,
-        setSortBy, handleSort} = props
+        filteredPetition, costSearchKey, setCostSearchKey,sortBy, handleSort} = props
     return (
-        <div style={{display:"flex", alignItems:'center' ,marginLeft:'65px', marginTop: "20px"}}>
+        <div style={{justifyContent:'center', alignItems:'center' , marginTop: "20px"}}>
             <FormControl sx={{m: 1, width: 300}}>
                 <TextField id="outlined-basic" label="Search for petition" variant="outlined"
                            value={searchKey} onChange={e => {
@@ -37,8 +36,8 @@ const SearchNavbar = (props:SearchNavbarProps) => {
                     onChange={(e: any) => setFilterCategory(e.target.value)}
                 >
                     {categories.map((row) => (
-                        <MenuItem key={row.categoryId} value={row.categoryId}>
-                            <Checkbox checked={filterCategory.indexOf(row.categoryId) > -1}/>
+                        <MenuItem key={row.id} value={row.id}>
+                            <Checkbox checked={filterCategory.indexOf(row.id) > -1}/>
                             {row.name}
                         </MenuItem>
                     ))}

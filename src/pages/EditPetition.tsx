@@ -39,25 +39,26 @@ const EditPetition = () => {
     const user = useStore(state => state.user)
     const token = user.token
     React.useEffect(() => {
-        getPetition()
-    }, [])
-    const getPetition = () => {
-        axios.get(url + petitionId)
-            .then((response) => {
-                setErrorFlag(false)
-                setErrorMessage("")
-                setPetitionFull(response.data)
-                setPetitionData({
-                    title: response.data.title,
-                    description: response.data.description,
-                    categoryId: response.data.categoryId,
-                    supportTiers: response.data.supportTiers || [{ title: "", description: "", cost: 0 }]
+        const getPetition = () => {
+            axios.get(url + petitionId)
+                .then((response) => {
+                    setErrorFlag(false)
+                    setErrorMessage("")
+                    setPetitionFull(response.data)
+                    setPetitionData({
+                        title: response.data.title,
+                        description: response.data.description,
+                        categoryId: response.data.categoryId,
+                        supportTiers: response.data.supportTiers || [{ title: "", description: "", cost: 0 }]
+                    })
+                }, (error) => {
+                    setErrorFlag(true)
+                    setErrorMessage(error.toString())
                 })
-            }, (error) => {
-                setErrorFlag(true)
-                setErrorMessage(error.toString())
-            })
-    }
+        }
+        getPetition()
+    }, [petitionId])
+
     const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
             return;

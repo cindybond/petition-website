@@ -1,7 +1,7 @@
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
-import {Alert, AlertTitle, Card, CardActionArea, CardContent, CardMedia, Divider, Paper} from "@mui/material";
+import {Alert, AlertTitle, Box, Card, CardActionArea, CardContent, CardMedia, Container, Paper, Tab, Tabs} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import CSS from "csstype";
@@ -19,6 +19,12 @@ const MyPetitions = () => {
     const [categories, setCategories] = React.useState < Array < Categories >>([])
     const [viewPetition, setViewPetition] = React.useState< Array < Petition >>([])
     const [supportedPetition, setSupportedPetition] = React.useState<Array<Petition>>([])
+    const [value, setValue] = useState(0);
+
+    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+        setValue(newValue);
+    };
+
     const url = 'http://localhost:4941/api/v1/petitions'
     const navigate = useNavigate()
     const user = useStore(state => state.user)
@@ -29,6 +35,7 @@ const MyPetitions = () => {
         getPetition()
         getSupportedPetitions()
         getCategories()
+        //eslint-disable-next-line
     },[])
 
     const handlePetitionClicked = (petitionId:number) => {
@@ -72,7 +79,7 @@ const MyPetitions = () => {
     }
     console.log(viewPetition.length)
     const getCategoryName = (categoryId:number) => {
-        const category = categories.find(cat => cat.categoryId === categoryId);
+        const category = categories.find(cat => cat.id === categoryId);
         return category ? category.name : '';
     }
     const showMyPetition = () => {
@@ -181,7 +188,7 @@ const MyPetitions = () => {
         }
     }
     return (
-        <div>
+        <Container maxWidth="lg">
             {errorFlag &&
                 <Alert severity="error">
                     <AlertTitle>Error</AlertTitle>
@@ -190,16 +197,25 @@ const MyPetitions = () => {
             <div>
                 <UserNavbar/>
             </div>
-            <div>
-                <Typography variant='overline' fontSize="30px">Petitions I Started</Typography>
-                {showMyPetition()}
-            </div>
-            <Divider/>
-            <div>
-                <Typography variant='overline' fontSize="30px">Petitions I Supported </Typography>
-                {showSupportedPetition()}
-            </div>
-        </div>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <Tabs value={value} onChange={handleChange} aria-label="petition tabs">
+                    <Tab label="Started" />
+                    <Tab label="Supported" />
+                </Tabs>
+            </Box>
+
+            {value === 0 && (
+                <Box sx={{ p: 3 }}>
+                    {showMyPetition()} 
+                </Box>
+            )}
+
+            {value === 1 && (
+                <Box sx={{ p: 3 }}>
+                    {showSupportedPetition()} 
+                </Box>
+            )}
+        </Container>
     )
 }
 

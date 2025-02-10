@@ -1,10 +1,9 @@
 import Toolbar from "@mui/material/Toolbar";
 import {
     Button,
-    Dialog,
+    Container,
     Menu,
     MenuItem,
-    styled,
     Tooltip
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
@@ -20,6 +19,7 @@ const UserNavbar = () => {
     const user = useStore(state => state.user)
     const navigate = useNavigate()
     const userId = user.userId
+    
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };
@@ -47,10 +47,12 @@ const UserNavbar = () => {
     }
 
     return (
-        <div>
+        <Container maxWidth="lg" sx ={{ borderBottom: 1, borderColor: 'divider' }}>
             <React.Fragment>
-                <Toolbar sx={{display: 'flex', borderBottom: 1, borderColor: 'divider'}}>
-                    <Button sx={{marginLeft:'40px', marginRight:'auto', fontSize:'40px'}} onClick={handleGoHome}>PETITION SITE</Button>
+                <Toolbar sx={{ display:'flex', justifyContent: 'space-between'}}>
+                    <div onClick={handleGoHome} style ={{ cursor : 'pointer', marginLeft:'40px' }}>
+                        <img src = "../Signed.png" style = {{ height : '100px', width: '200px'}} alt="Petition Site logo"></img>
+                    </div>
                     <div style={{display:'flex'}}>
                         <Button variant="contained"
                                 onClick={handleCreatePetition}
@@ -118,7 +120,7 @@ const UserNavbar = () => {
 
                 </Toolbar>
             </React.Fragment>
-        </div>
+        </Container>
     )
 
 }

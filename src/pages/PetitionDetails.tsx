@@ -57,6 +57,7 @@ const PetitionDetails = () => {
         getDetails()
         getSupporters()
         getCategories()
+        //eslint-disable-next-line
     }, [id])
     const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
@@ -224,7 +225,7 @@ const PetitionDetails = () => {
     }
 
     const getCategoryName = (categoryId:number) => {
-        const category = categories.find(cat => cat.categoryId === categoryId);
+        const category = categories.find(cat => cat.id === categoryId);
         return category ? category.name : '';
     }
 
@@ -238,8 +239,8 @@ const PetitionDetails = () => {
         return(
             <div>
                 <div style={{margin: '10px'}}>
-                    <Typography variant='button' sx={{fontSize:'22px'}}>
-                        SUPPORT TIERS
+                    <Typography variant='body1' sx={{fontSize:'22px','font-weight':'bold'}}>
+                        Support Tiers
                     </Typography>
                 </div>
                 <Divider/>
@@ -266,8 +267,8 @@ const PetitionDetails = () => {
         return (
             <div>
                 <div style={{display:'flex', margin:'20px'}}>
-                    <Typography variant="button" sx={{fontSize:'18px'}}>
-                        SUPPORTERS
+                    <Typography variant='body1' sx={{fontSize:'22px','font-weight':'bold'}}>
+                        Supporters
                     </Typography>
                 </div>
                 <Divider />
@@ -309,7 +310,7 @@ const PetitionDetails = () => {
         return(
             <div>
                 <div style={{display: 'flex', margin: '20px'}}>
-                    <Typography variant="button" sx={{fontSize: '18px'}}>
+                    <Typography variant='body1' sx={{fontSize:'22px','font-weight':'bold'}}>
                         Similar Petitions
                     </Typography>
                 </div>
@@ -444,6 +445,7 @@ const PetitionDetails = () => {
 
     return (
         <div>
+            <Container maxWidth="lg" sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
             {errorFlag &&
                 <Alert severity="error">
                     <AlertTitle>Error</AlertTitle>
@@ -568,6 +570,7 @@ const PetitionDetails = () => {
 
 
             {showPetitionDetails()}
+            </Container>
         </div>
     )
 }

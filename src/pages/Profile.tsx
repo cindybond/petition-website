@@ -37,8 +37,17 @@ const Profile = () =>{
     const url = 'http://localhost:4941/api/v1/users/'
 
     React.useEffect(() => {
+        const getDetails = () => {
+            axios.get(url + userId, {headers: {'X-Authorization': user.token}})
+                .then((response) => {
+                    setUserDetails(response.data)
+                }, (error) => {
+                    setErrorFlag(true)
+                    setErrorMessage(error.toString())
+                })
+        }
         getDetails()
-    }, [])
+    }, [user.token, userId])
 
     const handleSnackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
@@ -75,6 +84,7 @@ const Profile = () =>{
         uploadImage()
         patchUser()
     }
+
     const patchUser = () => {
         axios.patch(url + userId, userDetails,{headers: {'X-Authorization': user.token}})
             .then((response) => {
@@ -88,16 +98,7 @@ const Profile = () =>{
                 setErrorOpen(true)
             })
     }
-    const getDetails = () => {
-        console.log(user.token)
-        axios.get(url + userId, {headers: {'X-Authorization': user.token}})
-            .then((response) => {
-                setUserDetails(response.data)
-        }, (error) => {
-                setErrorFlag(true)
-                setErrorMessage(error.toString())
-            })
-    }
+
     const uploadImage = () => {
         if(selectedImage!== null) {
             axios.put(url + `${userId}/image`, selectedImage ,{headers: {'Content-Type':selectedImage?.type, 'X-Authorization': user.token}})
@@ -115,7 +116,7 @@ const Profile = () =>{
     const showDetails = () => {
         return(
             <Container sx={{display: 'flex', justifyContent: 'space-around'}}>
-                <Card sx={{marginTop: '40px', marginRight: '40px', padding:'30px'}}>
+                <Card sx={{marginTop: '40px', padding:'30px'}}>
                     <div style={{display:'flex', justifyContent:'space-around'}}>
                         <Avatar alt="User Image"
                                 src={`http://localhost:4941/api/v1/users/${userId}/image`}
@@ -225,15 +226,18 @@ const Profile = () =>{
     } else {
 
         return (
-            <div>
+            <Container maxWidth="lg">
                 <div>
                     <UserNavbar />
                 </div>
-                <div style={{display:'flex', justifyContent:'center', margin:'20px'}}>
+                <div style={{display:'flex', justifyContent:'center', marginTop:'20px'}}>
                     <Button color= "secondary" variant="outlined" size='large' onClick={handleEditDialogOpen}
                             startIcon={<ModeEditOutlineIcon/>}>EDIT PROFILE</Button>
                 </div>
+                <div>
                     {showDetails() }
+                </div>
+                   
                 <Snackbar
                     anchorOrigin={{
                         vertical: 'top',
@@ -267,7 +271,7 @@ const Profile = () =>{
                         {snackError}
                     </Alert>
                 </Snackbar>
-            </div>
+            </Container>
         )
 }}
 

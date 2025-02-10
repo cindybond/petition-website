@@ -1,5 +1,5 @@
 import Toolbar from "@mui/material/Toolbar";
-import {Button} from "@mui/material";
+import {Button, Container} from "@mui/material";
 import React from "react";
 import {useNavigate} from "react-router-dom";
 
@@ -14,19 +14,24 @@ const CasualNavbar =(props:casualNavbarProps) => {
         navigate('/petitions')
     }
     return(
-        <div>
+        <Container maxWidth="lg" sx ={{ borderBottom: 1, borderColor: 'divider' }}>
             <React.Fragment>
-                <Toolbar sx={{ display:'flex', borderBottom: 1, borderColor: 'divider'}}>
-                    <Button sx={{marginLeft:'40px', marginRight:'auto', fontSize:'40px'}} onClick={handleGoHome}>PETITION SITE</Button>
-                    <Button variant="outlined" onClick={handleRegister} sx={{margin:'10px'}}>
-                        Register
-                    </Button>
-                    <Button variant="outlined" onClick={handleSignIn}>
-                        Sign In
-                    </Button>
+                <Toolbar sx={{ display:'flex', justifyContent: 'space-between', borderBottom: 1, borderColor: 'divider'}}>
+                    <div onClick={handleGoHome} style ={{ cursor : 'pointer', marginLeft:'40px' }}>
+                        <img src = "../Signed.png" style = {{ height : '100px', width: '200px'}} alt="Petition Site logo"></img>
+                    </div>
+                    <div>
+                        <Button variant="outlined" onClick={handleRegister} sx={{marginRight:'10px', ':hover': { bgcolor: 'primary.main', color:'white'}}}>
+                            Register
+                        </Button>
+                        <Button variant="outlined" onClick={handleSignIn} sx = {{':hover': { bgcolor: 'primary.main', color:'white'}}}>
+                            Sign In
+                        </Button>
+                    </div>
+                   
                 </Toolbar>
             </React.Fragment>
-        </div>
+        </Container>
     )
 }
 

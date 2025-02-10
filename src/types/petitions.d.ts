@@ -21,7 +21,7 @@ type supportTier = {
 } & supportTierPost
 
 type Categories = {
-    categoryId: number,
+    id: number,
     name: string
 }
 
