@@ -1,17 +1,17 @@
 # Petition Website
 
-Full stack website where user can view and support petitions made by other user. 
+Full stack website where user can view and support petitions made by other user. <br />
 Must register for new user if do not have account yet. User registration is a must for supporting other petitions and creating new petition. 
 
 ## Stack
 
-Front end:
--- React 
--- MUI 
+Front end:<br />
+-- React <br />
+-- MUI <br />
 
-Back end (in another repo):
--- Node.js
--- Express.js
+Back end (in another repo):<br />
+-- Node.js<br />
+-- Express.js<br />
 
 Postman for testing
 
